@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.151
+// @version      0.160
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo
 // @match        https://hordes.io/play
@@ -11,10 +11,8 @@
   * TODO: Implement inventory sorting
   * TODO: (Maybe) Improved healer party frames
   * TODO: Opacity scaler for map
-  *       Check if it's ok to emulate keypresses before releasing. If not, then maybe copy text to clipboard.
   * TODO: FIX BUG: Add support for resizing map back to saved position after minimizing it, from maximized position
-  * TODO (Maybe): Ability to make GM chat look like normal chat?
-  * TODO: Add toggleable option to include chat messages to right of party frame
+  * TODO: (Maybe): Add toggleable option to include chat messages to right of party frame
   * TODO: Remove all reliance on svelte- classes, likely breaks with updates
   */
 (function() {
@@ -24,7 +22,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.150'; // Should match version in UserScript description
+    const VERSION = '0.160'; // Should match version in UserScript description
 
     // The width+height of the maximized chat, so we don't save map size when it's maximized
     // TODO: FIX BUG: This is NOT everyones max size. INSTEAD OF USING A STATIC SIZE, we should detect large instant resizes
@@ -41,6 +39,7 @@
     	},
     	windowsPos: {},
     	blockList: {},
+    	friendsList: {},
     };
     // tempState is saved only between page refreshed.
     const tempState = {
@@ -80,6 +79,11 @@
 		/* The item icon being dragged in the inventory */
 		.container.svelte-120o2pb {
 			z-index: 9999 !important;
+		}
+
+		/* All purpose hidden class */
+		.js-hidden {
+			display: none;
 		}
 
 		/* Custom chat context menu, invisible by default */
@@ -139,9 +143,20 @@
 			align-items: center;
 			max-height: 390px;
 			margin: 0 20px;
+			overflow-y: auto;
 		}
-		/* The custom settings main window, closely mirrors main settings window */
-		.uimod-custom-settings {
+		/* Friends list CSS, similar to settings but supports 4 columns */
+		.uimod-friends {
+			display: grid;
+			grid-template-columns: 2fr 2fr 2fr 1fr;
+			grid-gap: 8px;
+			align-items: center;
+			max-height: 390px;
+			margin: 0 20px;
+			overflow-y: auto;
+		}
+		/* Our custom window, closely mirrors main settings window */
+		.uimod-custom-window {
 			position: absolute;
 			top: 100px;
 		    left: 50%;
@@ -159,6 +174,16 @@
 
 
     const modHelpers = {
+    	// Automated chat command helpers
+    	// (We've been OK'd to do these by the dev - all automation like this should receive approval from the dev)
+    	whisperPlayer: playerName => {
+			enterTextIntoChat(`/whisper ${tempState.chatName} `);
+    	},
+    	partyPlayer: playerName => {
+    		enterTextIntoChat(`/partyinvite ${tempState.chatName}`);
+			submitChat();
+		},
+
     	// Filters all chat based on custom filters
     	filterAllChat: () => {
     		// Blocked user filter
@@ -186,7 +211,11 @@
 
 		// Makes chat context menu visible and appear under the mouse
 		showChatContextMenu: (name, mousePos) => {
+			// Right before we show the context menu, we want to handle showing/hiding Friend/Unfriend
 			const $contextMenu = document.querySelector('.js-chat-context-menu');
+			$contextMenu.querySelector('[name="friend"]').classList.toggle('js-hidden', !!state.friendsList[name]);
+			$contextMenu.querySelector('[name="unfriend"]').classList.toggle('js-hidden', !state.friendsList[name]);
+
 			$contextMenu.querySelector('.js-name').textContent = name;
 			$contextMenu.setAttribute('style', `display: block; left: ${mousePos.x}px; top: ${mousePos.y}px;`);
 		},
@@ -196,7 +225,7 @@
     		const $target = clickEvent.target;
     		// If clicking on name or directly on context menu, don't close it
     		// Still closes if clicking on context menu item
-    		if ($target.classList.contains('js-is-context-menu-initd') 
+    		if ($target.classList.contains('js-is-context-menu-initd')
     			|| $target.classList.contains('js-chat-context-menu')) {
     			return;
     		}
@@ -205,23 +234,43 @@
     		$contextMenu.setAttribute('style', 'display: none');
     	},
 
+    	friendPlayer: playerName => {
+    		if (state.friendsList[playerName]) {
+    			return;
+    		}
+
+    		state.friendsList[playerName] = true;
+    		modHelpers.addChatMessage(`${playerName} has been added to your friends list.`);
+    		save();
+    	},
+
+    	unfriendPlayer: playerName => {
+    		if (!state.friendsList[playerName]) {
+    			return;
+    		}
+
+    		delete state.friendsList[playerName];
+    		modHelpers.addChatMessage(`${playerName} is no longer on your friends list.`);
+    		save();
+    	},
+
     	// Adds player to block list, to be filtered out of chat
     	blockPlayer: playerName => {
     		if (state.blockList[playerName]) {
     			return;
     		}
-    		
+
     		state.blockList[playerName] = true;
     		modHelpers.filterAllChat();
     		modHelpers.addChatMessage(`${playerName} has been blocked.`)
-    		save({blockList: state.blockList});
+    		save();
     	},
 
     	// Removes player from block list and makes their messages visible again
     	unblockPlayer: playerName => {
     		delete state.blockList[playerName];
     		modHelpers.addChatMessage(`${playerName} has been unblocked.`);
-    		save({blockList: state.blockList});
+    		save();
 
     		// Make messages visible again
     		const $chatNames = Array.from(document.querySelectorAll(`.js-line-blocked[data-chat-name="${playerName}"]`));
@@ -275,7 +324,7 @@
     			state.chat.GM = !state.chat.GM;
     			$chatGM.classList.toggle('textgrey', !state.chat.GM);
     			modHelpers.filterAllChat();
-    			save({chat: state.chat});
+    			save();
     		});
     	},
 
@@ -301,7 +350,7 @@
     			const windowName = $draggableTarget.querySelector('[name="title"]').textContent;
     			$draggableTarget.addEventListener('mouseup', () => {
     				state.windowsPos[windowName] = $window.getAttribute('style');
-    				save({windowsPos: state.windowsPos});
+    				save();
     			});
     		});
     	},
@@ -334,10 +383,9 @@
     		const resizeObserverChat = new ResizeObserver(() => {
     			const chatWidthStr = window.getComputedStyle($chatContainer, null).getPropertyValue('width');
     			const chatHeightStr = window.getComputedStyle($chatContainer, null).getPropertyValue('height');
-    			save({
-    				chatWidth: chatWidthStr,
-    				chatHeight: chatHeightStr,
-    			});
+    			state.chatWidth = chatWidthStr;
+    			state.chatHeight = chatHeightStr;
+    			save();
     		});
     		resizeObserverChat.observe($chatContainer);
     	},
@@ -370,10 +418,9 @@
 
     			// Save map size on resize, unless map has been maximized by user
     			if (mapWidth !== CHAT_MAXIMIZED_SIZE && mapHeight !== CHAT_MAXIMIZED_SIZE) {
-    				save({
-    					mapWidth: mapWidthStr,
-    					mapHeight: mapHeightStr,
-    				});
+    				state.mapWidth = mapWidthStr;
+    				state.mapHeight = mapHeightStr;
+    				save();
     			}
     		};
 
@@ -440,6 +487,77 @@
     		});
     	},
 
+    	// The F icon and the UI that appears when you click it
+    	function customFriendsList() {
+    		var friendsIconElement = makeElement({
+    			element: 'div',
+    			class: 'btn border black js-friends-list-icon',
+    			content: 'F',
+    		});
+    		// Add the icon to the right of Elixir icon
+    		const $elixirIcon = document.querySelector('#sysgem');
+    		$elixirIcon.parentNode.insertBefore(friendsIconElement, $elixirIcon.nextSibling);
+
+    		// Create the friends list UI
+    		document.querySelector('.js-friends-list-icon').addEventListener('click', () => {
+    			let friendsListHTML = '';
+    			Object.keys(state.friendsList).sort().forEach(friendName => {
+    				friendsListHTML += `
+    					<div data-player-name="${friendName}">${friendName}</div>
+    					<div class="btn blue js-whisper-player" data-player-name="${friendName}">Whisper</div>
+    					<div class="btn blue js-party-player" data-player-name="${friendName}">Party invite</div>
+    					<div class="btn orange js-unfriend-player" data-player-name="${friendName}">Remove</div>
+					`;
+    			});
+
+    			const customFriendsWindowHTML = `
+    				<h3 class="textprimary">Friends list</h3>
+    				<div class="uimod-friends">${friendsListHTML}</div>
+    				<p></p>
+    				<div class="btn purp js-close-custom-friends-list">Close</div>
+    			`;
+
+				const $customFriendsList = makeElement({
+    				element: 'div',
+    				class: 'menu panel-black js-friends-list uimod-custom-window',
+    				content: customFriendsWindowHTML,
+    			});
+    			document.body.appendChild($customFriendsList);
+
+    			// Wire up the buttons
+    			Array.from(document.querySelectorAll('.js-whisper-player')).forEach($button => {
+    				$button.addEventListener('click', clickEvent => {
+    					const name = clickEvent.target.getAttribute('data-player-name');
+    					modHelpers.whisperPlayer(name);
+    				});
+    			});
+    			Array.from(document.querySelectorAll('.js-party-player')).forEach($button => {
+    				$button.addEventListener('click', clickEvent => {
+    					const name = clickEvent.target.getAttribute('data-player-name');
+    					modHelpers.partyPlayer(name);
+    				});
+    			});
+    			Array.from(document.querySelectorAll('.js-unfriend-player')).forEach($button => {
+    				$button.addEventListener('click', clickEvent => {
+    					const name = clickEvent.target.getAttribute('data-player-name');
+    					modHelpers.unfriendPlayer(name);
+
+    					// Remove the blocked player from the list
+    					Array.from(document.querySelectorAll(`.js-friends-list [data-player-name="${name}"]`)).forEach($element => {
+    						$element.parentNode.removeChild($element);
+    					});
+    				});
+    			});
+
+    			// The close button for our custom UI
+    			document.querySelector('.js-close-custom-friends-list').addEventListener('click', () => {
+    				const $friendsListWindow = document.querySelector('.js-friends-list');
+    				$friendsListWindow.parentNode.removeChild($friendsListWindow);
+    			});
+    		});
+    	},
+
+    	// Custom settings UI, currently just Blocked players
     	function customSettings() {
     		const $settings = document.querySelector('.divide:not(.js-settings-initd)');
     		if (!$settings) {
@@ -468,12 +586,12 @@
     				<h3 class="textprimary">Blocked players</h3>
     				<div class="settings uimod-settings">${blockedPlayersHTML}</div>
     				<p></p>
-    				<div class="btn blue js-close-custom-settings">Close</div>
+    				<div class="btn purp js-close-custom-settings">Close</div>
     			`;
 
     			const $customSettings = makeElement({
     				element: 'div',
-    				class: 'menu panel-black js-custom-settings uimod-custom-settings',
+    				class: 'menu panel-black js-custom-settings uimod-custom-window',
     				content: customSettingsHTML,
     			});
     			document.body.appendChild($customSettings);
@@ -485,7 +603,7 @@
     					modHelpers.unblockPlayer(name);
 
     					// Remove the blocked player from the list
-    					Array.from(document.querySelectorAll(`[data-player-name="${name}"]`)).forEach($element => {
+    					Array.from(document.querySelectorAll(`.js-custom-settings [data-player-name="${name}"]`)).forEach($element => {
     						$element.parentNode.removeChild($element);
     					});
     				});
@@ -493,7 +611,7 @@
     			// And the close button for our custom UI
     			document.querySelector('.js-close-custom-settings').addEventListener('click', () => {
     				const $customSettingsWindow = document.querySelector('.js-custom-settings');
-    				$customSettingsWindow.parentNode.removeChild($customSettings);
+    				$customSettingsWindow.parentNode.removeChild($customSettingsWindow);
     			});
     		});
     	},
@@ -504,28 +622,36 @@
     			return;
     		}
 
+    		let contextMenuHTML = `
+    			<div class="js-name">...</div>
+				<div class="choice" name="party">Party invite</div>
+				<div class="choice" name="whisper">Whisper</div>
+				<div class="choice" name="friend">Friend</div>
+				<div class="choice" name="unfriend">Unfriend</div>
+				<div class="choice" name="block">Block</div>
+			`
     		document.body.appendChild(makeElement({
     			element: 'div',
     			class: 'panel context border grey js-chat-context-menu',
-    			content: `
-    				<div class="js-name">...</div>
-    				<div class="choice" name="party">Party invite</div>
-    				<div class="choice" name="whisper">Whisper</div>
-    				<div class="choice" name="block">Block</div>
-    			`,
+    			content: contextMenuHTML,
     		}));
 
     		const $chatContextMenu = document.querySelector('.js-chat-context-menu');
     		$chatContextMenu.querySelector('[name="party"]').addEventListener('click', () => {
-				enterTextIntoChat(`/partyinvite ${tempState.chatName}`);
-				submitChat();
+				modHelpers.partyPlayer(tempState.chatName);
     		});
     		$chatContextMenu.querySelector('[name="whisper"]').addEventListener('click', () => {
-    			enterTextIntoChat(`/whisper ${tempState.chatName} `);
+    			modHelpers.whisperPlayer(tempState.chatName);
+    		});
+    		$chatContextMenu.querySelector('[name="friend"]').addEventListener('click', () => {
+    			modHelpers.friendPlayer(tempState.chatName);
+    		});
+    		$chatContextMenu.querySelector('[name="unfriend"]').addEventListener('click', () => {
+    			modHelpers.unfriendPlayer(tempState.chatName);
     		});
     		$chatContextMenu.querySelector('[name="block"]').addEventListener('click', () => {
     			modHelpers.blockPlayer(tempState.chatName);
-    		})
+    		});
     	},
 
     	// This opens a context menu when you click a user's name in chat
@@ -606,12 +732,7 @@
 
 	// UTIL METHODS
 	// Save to in-memory state and localStorage to retain on refresh
-	// TODO: Can use this solely to save to storage - dont need to update state, we already do that ourselves a lot
 	function save(items) {
-		state = {
-			...state,
-			...items,
-		};
 		localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(state));
 	}
 
