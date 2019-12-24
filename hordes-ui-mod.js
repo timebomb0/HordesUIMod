@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.170
+// @version      0.180
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo
 // @match        https://hordes.io/play
@@ -14,6 +14,9 @@
   * TODO: (Maybe): Add toggleable option to include chat messages to right of party frame
   * TODO: Remove all reliance on svelte- classes, likely breaks with updates
   * TODO: Add cooldown on skills (leverage skill icon URL, have a map for each skill icon mapping to its respective cooldown)
+  * TODO: Clicking names in party to add as friends
+  * TODO: (MAYBE, Confirm if dev is ok w it) Ctrl clicking item in inventory when Merchant is open to paste item name into search field, and search
+  * TODO: (MAYBE, confirm if dev is ok w it) Ctrl clicking item to copy details so user can paste in chat
   */
 (function() {
     'use strict';
@@ -22,12 +25,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.170'; // Should match version in UserScript description
-
-    // The width+height of the maximized chat, so we don't save map size when it's maximized
-    // TODO: FIX BUG: This is NOT everyones max size. INSTEAD OF USING A STATIC SIZE, we should detect large instant resizes
-    // Should also do this to avoid saving when minimizing menu after maximizing
-    const CHAT_MAXIMIZED_SIZE = 692;
+    const VERSION = '0.180'; // Should match version in UserScript description
 
     const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
     const CHAT_GM_CLASS = 'js-chat-gm';
@@ -41,11 +39,14 @@
     	blockList: {},
     	friendsList: {},
     	mapOpacity: 70, // e.g. 70 = opacity: 0.7
+    	friendNotes: {},
     };
     // tempState is saved only between page refreshes.
     const tempState = {
     	// The last name clicked in chat
-    	chatName: null
+    	chatName: null,
+    	lastMapWidth: 0,
+    	lastMapHeight: 0,
     };
 
     // UPDATING STYLES BELOW - Must be invoked in main function
@@ -93,7 +94,8 @@
 		}
 
 		/* Allow names in chat to be clicked */
-		#chat .name {
+		#chat .name,
+		.textwhisper .textf1 {
 			pointer-events: all !important;
 		}
 
@@ -131,10 +133,10 @@
 		    box-shadow: 0 1px 1px rgba(0,0,0,1);
 		}
 
-		.js-map-opacity {
+		.js-map-btns {
 			position: absolute;
 			top: 46px;
-			right: 12px; 
+			right: 12px;
 			z-index: 999;
 			width: 100px;
 			height: 100px;
@@ -142,10 +144,10 @@
 			display: none;
 			pointer-events: all;
 		}
-		.js-map-opacity:hover {
+		.js-map-btns:hover {
 			display: block;
 		}
-		.js-map-opacity button {
+		.js-map-btns button {
 			border-radius: 10px;
 			font-size: 18px;
 			padding: 0 5px;
@@ -156,7 +158,7 @@
 			pointer: cursor;
 		}
 		/* On hover of map, show opacity controls */
-		.js-map:hover .js-map-opacity {
+		.js-map:hover .js-map-btns {
 			display: block;
 		}
 
@@ -173,7 +175,7 @@
 		/* Friends list CSS, similar to settings but supports 4 columns */
 		.uimod-friends {
 			display: grid;
-			grid-template-columns: 2fr 2fr 2fr 1fr;
+			grid-template-columns: 2fr 1.1fr 1.5fr 0.33fr 3fr;
 			grid-gap: 8px;
 			align-items: center;
 			max-height: 390px;
@@ -256,7 +258,7 @@
     		}
 
     		const $contextMenu = document.querySelector('.js-chat-context-menu');
-    		$contextMenu.setAttribute('style', 'display: none');
+    		$contextMenu.style.display = 'none';
     	},
 
     	friendPlayer: playerName => {
@@ -275,6 +277,7 @@
     		}
 
     		delete state.friendsList[playerName];
+    		delete state.friendNotes[playerName];
     		modHelpers.addChatMessage(`${playerName} is no longer on your friends list.`);
     		save();
     	},
@@ -421,6 +424,16 @@
     		const $canvas = $map.querySelector('canvas');
     		$map.classList.add('js-map-resize');
 
+    		// Track whether we're clicking (resizing) map or not
+    		// Used to detect if resize changes are manually done, or from minimizing/maximizing map (with [M])
+    		$map.addEventListener('mousedown', () => {
+    			tempState.clickingMap = true;
+    		});
+    		// Sometimes the mouseup event may be registered outside of the map - we account for this
+    		document.body.addEventListener('mouseup', () => {
+    			tempState.clickingMap = false;
+    		});
+
     		const onMapResize = () => {
     			// Get real values of map height/width, excluding padding/margin/etc
     			const mapWidthStr = window.getComputedStyle($map, null).getPropertyValue('width');
@@ -441,12 +454,23 @@
     				$canvas.height = mapHeight;
     			}
 
-    			// Save map size on resize, unless map has been maximized by user
-    			if (mapWidth !== CHAT_MAXIMIZED_SIZE && mapHeight !== CHAT_MAXIMIZED_SIZE) {
+    			// If we're clicking map, i.e. manually resizing, then save state
+    			// Don't save state when minimizing/maximizing map via [M]
+    			if (tempState.clickingMap) {
     				state.mapWidth = mapWidthStr;
     				state.mapHeight = mapHeightStr;
     				save();
+    			} else {
+    				const isMaximized = mapWidth > tempState.lastMapWidth && mapHeight > tempState.lastMapHeight;
+    				if (!isMaximized) {
+    					$map.style.width = state.mapWidth;
+     					$map.style.height = state.mapHeight;
+    				}
     			}
+
+    			// Store last map width/height in temp state, so we know if we've minimized or maximized
+    			tempState.lastMapWidth = mapWidth;
+    			tempState.lastMapHeight = mapHeight;
     		};
 
 	    	if (state.mapWidth && state.mapHeight) {
@@ -492,7 +516,7 @@
     		resizeObserverCanvas.observe($canvas);
     	},
 
-    	function mapOpacityControls() {
+    	function mapControls() {
     		const $map = document.querySelector('.container canvas');
     		if (!$map.parentNode.classList.contains('js-map')) {
     			$map.parentNode.classList.add('js-map');
@@ -504,32 +528,60 @@
     		// We do this to allow our opacity buttons to be visible on hover with 100% opacity
     		// (A surprisingly difficult enough task to require this implementation)
     		const updateMapOpacity = () => {
-    			$map.setAttribute('style', `opacity: ${String(state.mapOpacity / 100)}`);
+    			$map.style.opacity = String(state.mapOpacity / 100);
 				const mapContainerBgColor = window.getComputedStyle($mapContainer, null).getPropertyValue('background-color');
 				// Credit for this regexp + This opacity+rgba dual implementation: https://stackoverflow.com/questions/16065998/replacing-changing-alpha-in-rgba-javascript
-				const newBgColor = mapContainerBgColor.replace(/[\d\.]+\)$/g, `${state.mapOpacity / 100})`);
-				$mapContainer.setAttribute('style', `background-color: ${newBgColor}`);
-    		};
-    		updateMapOpacity();
+				let opacity = state.mapOpacity / 100;
+				// This is a slightly lazy browser workaround to fix a bug.
+				// If the opacity is `1`, and it sets `rgba` to `1`, then the browser changes the
+				// rgba to rgb, dropping the alpha. We could account for that and add the `alpha` back in
+				// later, but setting the max opacity to very close to 1 makes sure the issue never crops up.
+				// Fun fact: 0.99 retains the alpha, but setting this to 0.999 still causes the browser to drop the alpha. Rude.
+				if (opacity === 1) {
+					opacity = 0.99;
+				}
+				const newBgColor = mapContainerBgColor.replace(/[\d\.]+\)$/g, `${opacity})`);
+				$mapContainer.style['background-color'] = newBgColor;
 
-    		const $opacityButtons = makeElement({
+				// Update the button opacity
+				const $addBtn = document.querySelector('.js-map-opacity-add');
+    			const $minusBtn = document.querySelector('.js-map-opacity-minus');
+				// Hide plus button if the opacity is max
+				if (state.mapOpacity === 100) {
+					$addBtn.style.visibility = 'hidden';
+				} else {
+					$addBtn.style.visibility = 'visible';
+				}
+				// Hide minus button if the opacity is lowest
+				if (state.mapOpacity === 0) {
+					$minusBtn.style.visibility = 'hidden';
+				} else {
+					$minusBtn.style.visibility = 'visible';
+				}
+    		};
+
+    		const $mapButtons = makeElement({
     			element: 'div',
-    			class: 'js-map-opacity',
-    			content: `<button class="js-map-opacity-add">+</button><button class="js-map-opacity-minus">-</button>`,
+    			class: 'js-map-btns',
+    			content: `
+    				<button class="js-map-opacity-add">+</button>
+    				<button class="js-map-opacity-minus">-</button>
+    				<button class="js-map-reset">r</button>
+				`,
     		});
 
     		// Add it right before the map container div
-    		$map.parentNode.insertBefore($opacityButtons, $map);
+    		$map.parentNode.insertBefore($mapButtons, $map);
 
     		const $addBtn = document.querySelector('.js-map-opacity-add');
     		const $minusBtn = document.querySelector('.js-map-opacity-minus');
-
+    		const $resetBtn = document.querySelector('.js-map-reset');
     		// Hide the buttons if map opacity is maxed/minimum
     		if (state.mapOpacity === 100) {
-    			$addBtn.setAttribute('style', 'visibility: hidden');
+    			$addBtn.style.visibility = 'hidden';
     		}
     		if (state.mapOpacity === 0) {
-    			$minusBtn.setAttribute('style', 'visibility: hidden');
+    			$minusBtn.style.visibility = 'hidden';
     		}
 
     		// Wire it up
@@ -538,18 +590,6 @@
     			state.mapOpacity += 10;
     			save();
 				updateMapOpacity();
-
-				// Hide this button if the opacity is max
-				if (state.mapOpacity === 100) {
-					const $btn = clickEvent.target;
-					// We use visibility to hide the button but keep its position in the UI
-					$btn.setAttribute('style', 'visibility: hidden');
-				}
-				// If map opacity is not the lowest, then make minus button visible
-				if (state.mapOpacity !== 0) {
-					$minusBtn.setAttribute('style', 'visibility: visible');
-				} 
-    			save();
     		});
 
     		$minusBtn.addEventListener('click', clickEvent => {
@@ -557,17 +597,19 @@
     			state.mapOpacity -= 10;
     			save();
 				updateMapOpacity();
-
-				// Hide this button if the opacity is lowest
-				if (state.mapOpacity === 0) {
-					const $btn = clickEvent.target;
-					$btn.setAttribute('style', 'visibility: hidden');
-				}
-				// If map opacity is not the max, then make add button visible
-				if (state.mapOpacity !== 100) {
-					$addBtn.setAttribute('style', 'visibility: visible');
-				}
     		});
+
+    		$resetBtn.addEventListener('click', clickEvent => {
+    			state.mapOpacity = 70;
+    			state.mapWidth = '174px';
+    			state.mapHeight = '174px';
+    			save();
+    			updateMapOpacity();
+    			$mapContainer.style.width = state.mapWidth;
+    			$mapContainer.style.height = state.mapHeight;
+    		});
+
+    		updateMapOpacity();
     	},
 
     	// The last clicked UI window displays above all other UI windows
@@ -613,7 +655,8 @@
     					<div data-player-name="${friendName}">${friendName}</div>
     					<div class="btn blue js-whisper-player" data-player-name="${friendName}">Whisper</div>
     					<div class="btn blue js-party-player" data-player-name="${friendName}">Party invite</div>
-    					<div class="btn orange js-unfriend-player" data-player-name="${friendName}">Remove</div>
+    					<div class="btn orange js-unfriend-player" data-player-name="${friendName}">X</div>
+						<input type="text" class="js-friend-note" data-player-name="${friendName}" value="${state.friendNotes[friendName] || ''}"></input>
 					`;
     			});
 
@@ -655,6 +698,12 @@
     					});
     				});
     			});
+    			Array.from(document.querySelectorAll('.js-friend-note')).forEach($element => {
+    				$element.addEventListener('change', clickEvent => {
+	    				const name = clickEvent.target.getAttribute('data-player-name');
+	    				state.friendNotes[name] = clickEvent.target.value;
+	    			});
+    			})
 
     			// The close button for our custom UI
     			document.querySelector('.js-close-custom-friends-list').addEventListener('click', () => {
@@ -723,7 +772,7 @@
     		});
     	},
 
-    	// This creates the initial chat context menu (which starts as hidden)
+    	// This creates the initial chat context menu DOM (which starts as hidden)
     	function createChatContextMenu() {
     		if (document.querySelector('.js-chat-context-menu')) {
     			return;
@@ -763,17 +812,28 @@
 
     	// This opens a context menu when you click a user's name in chat
     	function chatContextMenu() {
-    		Array.from(document.querySelectorAll('.name:not(.js-is-context-menu-initd)')).forEach($name => {
+    		const addContextMenu = ($name, name) => {
     			$name.classList.add('js-is-context-menu-initd');
     			// Add name to element so we can target it in CSS when filtering chat for block list
-    			$name.setAttribute('data-chat-name', $name.textContent);
+    			$name.setAttribute('data-chat-name', name);
 
     			const showContextMenu = clickEvent => {
     				// TODO: Is there a way to pass the name to showChatContextMenumethod, instead of storing in tempState?
-    				tempState.chatName = $name.textContent;
-    				modHelpers.showChatContextMenu($name.textContent, {x: clickEvent.pageX, y: clickEvent.pageY});
+    				tempState.chatName = name;
+    				modHelpers.showChatContextMenu(name, {x: clickEvent.pageX, y: clickEvent.pageY});
     			};
-    			$name.addEventListener('click', showContextMenu);
+    			$name.addEventListener('click', showContextMenu); // Left click
+    			$name.addEventListener('contextmenu', showContextMenu); // Right click works too
+    		};
+    		Array.from(document.querySelectorAll('.name:not(.js-is-context-menu-initd)')).forEach(($name) => {
+    			addContextMenu($name, $name.textContent);
+    		});
+    		Array.from(document.querySelectorAll('.textwhisper .textf1:not(.js-is-context-menu-initd)')).forEach($whisperName => {
+    			// $whisperName's textContent is "to [name]" or "from [name]", so we cut off the first word
+    			let name = $whisperName.textContent.split(' ');
+    			name.shift(); // Remove the first word
+    			name = name.join(' ');
+    			addContextMenu($whisperName, name);
     		});
     	},
     ];
