@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.160
+// @version      0.170
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo
 // @match        https://hordes.io/play
@@ -10,10 +10,10 @@
   * TODO: Implement chat tabs
   * TODO: Implement inventory sorting
   * TODO: (Maybe) Improved healer party frames
-  * TODO: Opacity scaler for map
   * TODO: FIX BUG: Add support for resizing map back to saved position after minimizing it, from maximized position
   * TODO: (Maybe): Add toggleable option to include chat messages to right of party frame
   * TODO: Remove all reliance on svelte- classes, likely breaks with updates
+  * TODO: Add cooldown on skills (leverage skill icon URL, have a map for each skill icon mapping to its respective cooldown)
   */
 (function() {
     'use strict';
@@ -22,7 +22,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.160'; // Should match version in UserScript description
+    const VERSION = '0.170'; // Should match version in UserScript description
 
     // The width+height of the maximized chat, so we don't save map size when it's maximized
     // TODO: FIX BUG: This is NOT everyones max size. INSTEAD OF USING A STATIC SIZE, we should detect large instant resizes
@@ -40,8 +40,9 @@
     	windowsPos: {},
     	blockList: {},
     	friendsList: {},
+    	mapOpacity: 70, // e.g. 70 = opacity: 0.7
     };
-    // tempState is saved only between page refreshed.
+    // tempState is saved only between page refreshes.
     const tempState = {
     	// The last name clicked in chat
     	chatName: null
@@ -52,11 +53,6 @@
     	/* Transparent chat bg color */
 		.frame.svelte-1vrlsr3 {
 			background: rgba(0,0,0,0.4);
-		}
-
-		/* Transparent map */
-		.svelte-hiyby7 {
-			opacity: 0.7;
 		}
 
 		/* Our mod's chat message color */
@@ -133,6 +129,35 @@
 	        background: linear-gradient(to right, rgba(51, 77, 80, 0), rgba(203, 202, 165, 0.5));
 		    border-radius: 8px;
 		    box-shadow: 0 1px 1px rgba(0,0,0,1);
+		}
+
+		.js-map-opacity {
+			position: absolute;
+			top: 46px;
+			right: 12px; 
+			z-index: 999;
+			width: 100px;
+			height: 100px;
+			text-align: right;
+			display: none;
+			pointer-events: all;
+		}
+		.js-map-opacity:hover {
+			display: block;
+		}
+		.js-map-opacity button {
+			border-radius: 10px;
+			font-size: 18px;
+			padding: 0 5px;
+			background: rgba(0,0,0,0.4);
+			border: 0;
+			color: white;
+			font-weight: bold;
+			pointer: cursor;
+		}
+		/* On hover of map, show opacity controls */
+		.js-map:hover .js-map-opacity {
+			display: block;
 		}
 
 		/* Custom css for settings page, duplicates preexisting settings pane grid */
@@ -392,7 +417,7 @@
 
     	// Makes map resizable
     	function resizeableMap() {
-    		const $map = document.querySelector('.svelte-hiyby7');
+    		const $map = document.querySelector('.container canvas').parentNode;
     		const $canvas = $map.querySelector('canvas');
     		$map.classList.add('js-map-resize');
 
@@ -462,9 +487,87 @@
     		// resizing would constantly be interrupted. You'd have to resize a tiny bit,
     		// lift left click, left click again to resize a tiny bit more, etc.
     		// Resizing is smooth when we debounce this canvas.
-	    	const debouncedTriggerResize = debounce(triggerResize, 200);
+	    	const debouncedTriggerResize = debounce(triggerResize, 50);
     		const resizeObserverCanvas = new ResizeObserver(debouncedTriggerResize);
     		resizeObserverCanvas.observe($canvas);
+    	},
+
+    	function mapOpacityControls() {
+    		const $map = document.querySelector('.container canvas');
+    		if (!$map.parentNode.classList.contains('js-map')) {
+    			$map.parentNode.classList.add('js-map');
+    		}
+    		const $mapContainer = document.querySelector('.js-map');
+
+    		// On load, update map opacity to match state
+    		// We modify the opacity of the canvas and the background color alpha of the parent container
+    		// We do this to allow our opacity buttons to be visible on hover with 100% opacity
+    		// (A surprisingly difficult enough task to require this implementation)
+    		const updateMapOpacity = () => {
+    			$map.setAttribute('style', `opacity: ${String(state.mapOpacity / 100)}`);
+				const mapContainerBgColor = window.getComputedStyle($mapContainer, null).getPropertyValue('background-color');
+				// Credit for this regexp + This opacity+rgba dual implementation: https://stackoverflow.com/questions/16065998/replacing-changing-alpha-in-rgba-javascript
+				const newBgColor = mapContainerBgColor.replace(/[\d\.]+\)$/g, `${state.mapOpacity / 100})`);
+				$mapContainer.setAttribute('style', `background-color: ${newBgColor}`);
+    		};
+    		updateMapOpacity();
+
+    		const $opacityButtons = makeElement({
+    			element: 'div',
+    			class: 'js-map-opacity',
+    			content: `<button class="js-map-opacity-add">+</button><button class="js-map-opacity-minus">-</button>`,
+    		});
+
+    		// Add it right before the map container div
+    		$map.parentNode.insertBefore($opacityButtons, $map);
+
+    		const $addBtn = document.querySelector('.js-map-opacity-add');
+    		const $minusBtn = document.querySelector('.js-map-opacity-minus');
+
+    		// Hide the buttons if map opacity is maxed/minimum
+    		if (state.mapOpacity === 100) {
+    			$addBtn.setAttribute('style', 'visibility: hidden');
+    		}
+    		if (state.mapOpacity === 0) {
+    			$minusBtn.setAttribute('style', 'visibility: hidden');
+    		}
+
+    		// Wire it up
+    		$addBtn.addEventListener('click', clickEvent => {
+    			// Update opacity
+    			state.mapOpacity += 10;
+    			save();
+				updateMapOpacity();
+
+				// Hide this button if the opacity is max
+				if (state.mapOpacity === 100) {
+					const $btn = clickEvent.target;
+					// We use visibility to hide the button but keep its position in the UI
+					$btn.setAttribute('style', 'visibility: hidden');
+				}
+				// If map opacity is not the lowest, then make minus button visible
+				if (state.mapOpacity !== 0) {
+					$minusBtn.setAttribute('style', 'visibility: visible');
+				} 
+    			save();
+    		});
+
+    		$minusBtn.addEventListener('click', clickEvent => {
+    			// Update opacity
+    			state.mapOpacity -= 10;
+    			save();
+				updateMapOpacity();
+
+				// Hide this button if the opacity is lowest
+				if (state.mapOpacity === 0) {
+					const $btn = clickEvent.target;
+					$btn.setAttribute('style', 'visibility: hidden');
+				}
+				// If map opacity is not the max, then make add button visible
+				if (state.mapOpacity !== 100) {
+					$addBtn.setAttribute('style', 'visibility: visible');
+				}
+    		});
     	},
 
     	// The last clicked UI window displays above all other UI windows
@@ -500,6 +603,10 @@
 
     		// Create the friends list UI
     		document.querySelector('.js-friends-list-icon').addEventListener('click', () => {
+    			if (document.querySelector('.js-friends-list')) {
+    				// Don't open the friends list twice.
+    				return;
+    			}
     			let friendsListHTML = '';
     			Object.keys(state.friendsList).sort().forEach(friendName => {
     				friendsListHTML += `
