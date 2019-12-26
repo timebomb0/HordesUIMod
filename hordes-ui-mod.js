@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.180
+// @version      0.190
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo
 // @match        https://hordes.io/play
 // @grant        GM_addStyle
 // ==/UserScript==
 /**
-  * TODO: Implement chat tabs
+  * TODO: Add whisper chat filter
   * TODO: Implement inventory sorting
   * TODO: (Maybe) Improved healer party frames
   * TODO: FIX BUG: Add support for resizing map back to saved position after minimizing it, from maximized position
@@ -25,10 +25,10 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.180'; // Should match version in UserScript description
+    const VERSION = '0.190'; // Should match version in UserScript description
 
+    const DEFAULT_CHAT_TAB_NAME = 'Untitled';
     const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
-    const CHAT_GM_CLASS = 'js-chat-gm';
 
     let state = {
     	breakingVersion: BREAKING_VERSION,
@@ -40,6 +40,7 @@
     	friendsList: {},
     	mapOpacity: 70, // e.g. 70 = opacity: 0.7
     	friendNotes: {},
+    	chatTabs: [],
     };
     // tempState is saved only between page refreshes.
     const tempState = {
@@ -197,6 +198,65 @@
 		    z-index: 9;
 		    padding: 0px 10px 5px;
 		}
+		/* Custom chat tabs */
+		.uimod-chat-tabs {
+			position: fixed;
+			margin-top: -22px;
+			left: 5px;
+			pointer-events: all;
+			color: #5b858e;
+			font-size: 12px;
+			font-weight: bold;
+		}
+		.uimod-chat-tabs > div {
+			cursor: pointer;
+			background-color: rgba(0,0,0,0.4);
+			border-top-right-radius: 4px;
+			border-top-left-radius: 4px;
+			display: inline-block;
+			border: 1px black solid;
+			border-bottom: 0;
+			margin-right: 2px;
+			padding: 3px 5px;
+		}
+		.uimod-chat-tabs > div:not(.js-selected-tab):hover {
+			border-color: #aaa;
+		}
+		.uimod-chat-tabs > .js-selected-tab {
+			color: #fff;
+		}
+
+		/* Chat tab custom config */
+		.uimod-chat-tab-config {
+			position: absolute;
+			z-index: 9999999;
+		    background-color: rgba(0,0,0,0.6);
+		    color: white;
+		    border-radius: 3px;
+		    text-align: center;
+		    padding: 8px 12px 8px 6px;
+		    width: 175px;
+		    font-size: 14px;
+		    border: 1px solid black;
+		    display: none;
+		}
+
+		.uimod-chat-tab-config-grid {
+			grid-template-columns: 35% 65%;
+		    display: grid;
+		    grid-gap: 6px;
+		    align-items: center;
+		}
+
+		.uimod-chat-tab-config h1 {
+			font-size: 16px;
+			margin-top: 0;
+		}
+
+		.uimod-chat-tab-config .btn,
+		.uimod-chat-tab-config input {
+			font-size: 12px;
+		}
 	`);
 
 
@@ -328,6 +388,140 @@
     			content: newMessageHTML});
     		document.querySelector('#chat').appendChild(element);
     	},
+
+    	// Gets current chat filters as represented in the UI
+    	// filter being true means it's invisible(filtered) in chat
+    	// filter being false means it's visible(unfiltered) in chat
+    	getCurrentChatFilters: () => {
+    		// Saved by the official game client
+    		const gameFilters = JSON.parse(localStorage.getItem('filteredChannels'));
+    		return {
+    			global: gameFilters.includes('global'),
+    			faction: gameFilters.includes('faction'),
+    			party: gameFilters.includes('party'),
+    			clan: gameFilters.includes('clan'),
+    			pvp: gameFilters.includes('pvp'),
+    			inv: gameFilters.includes('inv'),
+    			GM: !state.chat.GM, // state.chat.GM is whether or not GM chat is shown - we want whether or not GM chat should be hidden
+    		};
+    	},
+
+    	// Shows the chat tab config window for a specific tab, displayed in a specific position
+    	showChatTabConfigWindow: (tabId, pos) => {
+    		const $chatTabConfig = document.querySelector('.js-chat-tab-config');
+    		const chatTab = state.chatTabs.find(tab => tab.id === tabId);
+    		// Update position and name in chat tab config
+    		$chatTabConfig.style.left = `${pos.x}px`;
+    		$chatTabConfig.style.top = `${pos.y}px`;
+    		$chatTabConfig.querySelector('.js-chat-tab-name').value = chatTab.name;
+
+    		// Store tabId in state, to be used by the Remove/Add buttons in config window
+    		tempState.editedChatTabId = tabId;
+
+    		// Hide remove button if only one chat tab left - can't remove last one
+    		// Show it if more than one chat tab left
+    		const chatTabCount = Object.keys(state.chatTabs).length;
+    		const $removeChatTabBtn = $chatTabConfig.querySelector('.js-remove-chat-tab');
+    		$removeChatTabBtn.style.display = chatTabCount < 2 ? 'none' : 'block';
+
+    		// Show chat tab config
+    		$chatTabConfig.style.display = 'block';
+    	},
+
+    	// Adds chat tab to DOM, sets it as selected
+    	// If argument chatTab is provided, will use that name+id
+    	// If no argument is provided, will create new tab name/id and add it to state
+    	// isInittingTab is optional boolean, if `true`, will _not_ set added tab as selected. Used when initializing all chat tabs on load
+    	// Returns newly added tabId
+    	addChatTab: (chatTab, isInittingTab) => {
+    		let tabName = DEFAULT_CHAT_TAB_NAME;
+    		let tabId = uuid();
+    		if (chatTab) {
+    			tabName = chatTab.name;
+    			tabId = chatTab.id;
+    		} else {
+	    		// If no chat tab was provided, create it in state
+	    		state.chatTabs.push({
+	    			name: tabName,
+	    			id: tabId,
+	    			filters: modHelpers.getCurrentChatFilters(),
+	    		});
+	    		save();
+    		}
+
+    		const $tabs = document.querySelector('.js-chat-tabs');
+    		const $tab = makeElement({
+    			element: 'div',
+    			content: tabName,
+    		});
+    		$tab.setAttribute('data-tab-id', tabId);
+
+    		// Add chat tab to DOM
+    		$tabs.appendChild($tab);
+
+    		// Wire chat tab up to open config on right click
+    		$tab.addEventListener('contextmenu', clickEvent => {
+    			const mousePos = {x: clickEvent.pageX, y: clickEvent.pageY};
+    			modHelpers.showChatTabConfigWindow(tabId, mousePos);
+    		});
+    		// And select chat tab on left click
+    		$tab.addEventListener('click', () => {
+    			modHelpers.selectChatTab(tabId);
+    		});
+
+    		if (!isInittingTab) {
+	    		// Select the newly added chat tab
+	    		modHelpers.selectChatTab(tabId);
+	    	}
+
+	    	// Returning tabId to all adding new tab to pass tab ID to `showChatTabConfigWindow`
+    		return tabId;
+    	},
+
+    	// Selects chat tab [on click], updating client chat filters and custom chat filters
+    	selectChatTab: tabId => {
+    		// Remove selected class from everything, then add selected class to clicked tab
+    		Array.from(document.querySelectorAll('[data-tab-id]')).forEach($tab => {
+    			$tab.classList.remove('js-selected-tab');
+    		});
+    		const $tab = document.querySelector(`[data-tab-id="${tabId}"]`);
+    		$tab.classList.add('js-selected-tab');
+
+    		const tabFilters = state.chatTabs.find(tab => tab.id === tabId).filters;
+    		// Simulating clicks on the filters to turn them on/off
+    		const $filterButtons = Array.from(document.querySelectorAll('.channelselect small'));
+    		Object.keys(tabFilters).forEach(filter => {
+    			const $filterButton = $filterButtons.find($btn => $btn.textContent === filter);
+    			const isCurrentlyFiltered = $filterButton.classList.contains('textgrey');
+
+    			// If is currently filtered but filter for this tab is turned off, click it to turn filter off
+    			if (isCurrentlyFiltered && !tabFilters[filter]) {
+    				$filterButton.click();
+    			}
+    			// If it is not currently filtered but filter for this tab is turned on, click it to turn filter on
+    			if (!isCurrentlyFiltered && tabFilters[filter]) {
+    				$filterButton.click();
+    			}
+    		});
+
+    		// Update state for our custom chat filters to match the tab's configuration, then filter chat for it
+    		const isGMChatVisible = !tabFilters.GM;
+    		modHelpers.setGMChatVisibility(isGMChatVisible);
+
+    		// Update the selected tab in state
+    		state.selectedChatTabId = tabId;
+    		save();
+    	},
+
+    	// Updates state.chat.GM and the DOM to make text white/grey depending on if gm chat is visible/filtered
+    	// Then filters chat and saves updated chat state
+    	setGMChatVisibility: isGMChatVisible => {
+			const $chatGM = document.querySelector(`.js-chat-gm`);
+			state.chat.GM = isGMChatVisible;
+			$chatGM.classList.toggle('textgrey', !state.chat.GM);
+			modHelpers.filterAllChat();
+			save();
+    	},
     };
 
     // MAIN MODS BELOW
@@ -335,24 +529,134 @@
     	// Creates DOM elements for custom chat filters
     	function newChatFilters() {
 	    	const $channelselect = document.querySelector('.channelselect');
-	    	if (!document.querySelector(`.${CHAT_GM_CLASS}`)) {
+	    	if (!document.querySelector(`.js-chat-gm`)) {
 				const $gm = makeElement({
 		        	element: 'small',
-		        	class: `btn border black ${CHAT_GM_CLASS} ${state.chat.GM ? '' : 'textgrey'}`,
+		        	class: `btn border black js-chat-gm ${state.chat.GM ? '' : 'textgrey'}`,
 		        	content: 'GM'
 		        });
 		        $channelselect.appendChild($gm);
 		    }
 	    },
 
+	    // Creates DOM elements and wires them up for custom chat tabs and chat tab config
+	    // Note: Should be done after creating new custom chat filters
+    	function customChatTabs() {
+    		// Create the chat tab configuration DOM
+    		const $chatTabConfigurator = makeElement({
+    			element: 'div',
+    			class: 'uimod-chat-tab-config js-chat-tab-config',
+    			content: `
+    				<h1>Chat Tab Config</h1>
+    				<div class="uimod-chat-tab-config-grid">
+	    				<div>Name</div><input type="text" class="js-chat-tab-name" value="untitled"></input>
+	    				<div class="btn orange js-remove-chat-tab">Remove</div><div class="btn blue js-save-chat-tab">Ok</div>
+	    			</div>
+    			`,
+    		});
+    		document.body.append($chatTabConfigurator);
+
+    		// Wire it up
+    		document.querySelector('.js-remove-chat-tab').addEventListener('click', () => {
+    			// Remove the chat tab from state
+    			const editedChatTab = state.chatTabs.find(tab => tab.id === tempState.editedChatTabId);
+    			const editedChatTabIndex = state.chatTabs.indexOf(editedChatTab);
+    			state.chatTabs.splice(editedChatTabIndex, 1);
+    			
+    			// Remove the chat tab from DOM
+    			const $chatTab = document.querySelector(`[data-tab-id="${tempState.editedChatTabId}"]`);
+    			$chatTab.parentNode.removeChild($chatTab);
+
+    			// If we just removed the currently selected chat tab
+    			if (tempState.editedChatTabId === state.selectedChatTabId) {
+	    			// Select the chat tab to the left of the removed one
+	    			const nextChatTabIndex = editedChatTabIndex === 0 ? 0 : editedChatTabIndex - 1;
+	    			modHelpers.selectChatTab(state.chatTabs[nextChatTabIndex].id);
+	    		}
+
+    			// Close chat tab config
+    			document.querySelector('.js-chat-tab-config').style.display = 'none';
+    		});
+
+    		document.querySelector('.js-save-chat-tab').addEventListener('click', () => {
+    			// Set new chat tab name in DOM
+    			const $chatTab = document.querySelector(`[data-tab-id="${state.selectedChatTabId}"]`);
+    			const newName = document.querySelector('.js-chat-tab-name').value;
+    			$chatTab.textContent = newName;
+
+    			// Set new chat tab name in state
+    			// `selectedChatTab` is a reference on `state.chatTabs`, so updating it above still updates it in the state - we want to save that
+    			const selectedChatTab = state.chatTabs.find(tab => tab.id === state.selectedChatTabId);
+    			selectedChatTab.name = newName;
+    			save();
+
+    			// Close chat tab config
+    			document.querySelector('.js-chat-tab-config').style.display = 'none';
+    		});
+
+    		// Create the initial chat tabs HTML
+    		const $chat = document.querySelector('#chat');
+    		const $chatTabs = makeElement({
+    			element: 'div',
+    			class: 'uimod-chat-tabs js-chat-tabs',
+    			content: '<div class="js-chat-tab-add">+</div>',
+    		});
+
+    		// Add them to the DOM
+    		$chat.parentNode.insertBefore($chatTabs, $chat);
+
+    		// Add all our chat tabs from state
+    		state.chatTabs.forEach(chatTab => {
+    			const isInittingTab = true;
+    			modHelpers.addChatTab(chatTab, isInittingTab);
+    		});
+
+    		// Wire up the add chat tab button
+    		document.querySelector('.js-chat-tab-add').addEventListener('click', clickEvent => {
+    			const chatTabId = modHelpers.addChatTab();
+    			const mousePos = {x: clickEvent.pageX, y: clickEvent.pageY};
+    			modHelpers.showChatTabConfigWindow(chatTabId, mousePos);
+    		});
+
+    		// If initial chat tab doesn't exist, create it based off current filter settings
+    		if (!Object.keys(state.chatTabs).length) {
+    			const tabId = uuid();
+    			const chatTab = {
+    				name: 'Main',
+    				id: tabId,
+    				filters: modHelpers.getCurrentChatFilters()
+    			};
+    			state.chatTabs.push(chatTab);
+    			save();
+    			modHelpers.addChatTab(chatTab);
+    		}
+
+    		// Wire up click event handlers onto the filters to update the selected chat tab's filters in state
+    		document.querySelector('.channelselect').addEventListener('click', clickEvent => {
+    			const $elementMouseIsOver = document.elementFromPoint(clickEvent.clientX, clickEvent.clientY);
+    			
+    			// We only want to change the filters if the user manually clicks the filter button
+    			// If they clicked a chat tab and we programatically set filters, we don't want to update
+    			// the current tab's filter state
+    			if (!$elementMouseIsOver.classList.contains('btn')) {
+    				return;
+    			}
+    			const selectedChatTab = state.chatTabs.find(tab => tab.id === state.selectedChatTabId);
+				selectedChatTab.filters = modHelpers.getCurrentChatFilters();
+				save();
+    		});
+
+    		// Select the currently selected tab in state on mod initialization
+    		if (state.selectedChatTabId) {
+    			modHelpers.selectChatTab(state.selectedChatTabId);
+    		}
+    	},
+
     	// Wire up new chat buttons to toggle in state+ui
     	function newChatFilterButtons() {
-    		const $chatGM = document.querySelector(`.${CHAT_GM_CLASS}`);
+    		const $chatGM = document.querySelector(`.js-chat-gm`);
     		$chatGM.addEventListener('click', () => {
-    			state.chat.GM = !state.chat.GM;
-    			$chatGM.classList.toggle('textgrey', !state.chat.GM);
-    			modHelpers.filterAllChat();
-    			save();
+    			modHelpers.setGMChatVisibility(!state.chat.GM);
     		});
     	},
 
@@ -999,5 +1303,20 @@
 			timeout = setTimeout(later, wait);
 			if (callNow) func.apply(context, args);
 		};
+	}
+
+
+	// Credit: https://gist.github.com/jcxplorer/823878
+	// Generate random UUID string
+	function uuid() {
+		var uuid = "", i, random;
+		for (i = 0; i < 32; i++) {
+			random = Math.random() * 16 | 0;
+			if (i == 8 || i == 12 || i == 16 || i == 20) {
+				uuid += "-";
+			}
+			uuid += (i == 12 ? 4 : (i == 16 ? (random & 3 | 8) : random)).toString(16);
+		}
+		return uuid;
 	}
 })();
