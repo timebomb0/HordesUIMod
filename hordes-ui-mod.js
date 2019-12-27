@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.201
+// @version      0.200
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo & Chandog#6373
 // @match        https://hordes.io/play
@@ -25,7 +25,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.201'; // Should match version in UserScript description
+    const VERSION = '0.200'; // Should match version in UserScript description
 
     const DEFAULT_CHAT_TAB_NAME = 'Untitled';
     const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
@@ -265,6 +265,75 @@
 		.uimod-chat-tab-config .btn,
 		.uimod-chat-tab-config input {
 			font-size: 12px;
+        }
+
+        .container.uimod-xpmeter-1 {
+            z-index: 6;
+        }
+        
+        .window.uimod-xpmeter-2 {
+            padding: 5px;
+            height: 100%;
+            display: grid;
+            grid-template-rows: 30px 1fr;
+            grid-gap: 4px;
+            transform-origin: inherit;
+            min-width: fit-content;
+        }
+        
+        .titleframe.uimod-xpmeter-2 {
+            line-height: 1em;
+            display: flex;
+            align-items: center;
+            position: relative;
+            letter-spacing: 0.5px;
+        }
+        
+        .titleicon.uimod-xpmeter-2 {
+            margin: 3px;
+        }
+        
+        .title.uimod-xpmeter-2 {
+            width: 100%;
+            padding-left: 4px;
+            font-weight: bold;
+        }
+        
+        .slot.uimod-xpmeter-2 {
+            min-height: 0;
+        }
+        
+        .wrapper.uimod-xpmeter-1 {
+            width: 200px;
+        }
+        
+        .bar.uimod-xpmeter-3 {
+            background-color: rgba(45, 66, 71, 0.7);
+            border-radius: 1.5px;
+            position: relative;
+            color: #DAE8EA;
+            overflow: hidden;
+            text-shadow: 1px 1px 2px #10131d;
+            white-space: nowrap;
+            text-transform: capitalize;
+            font-weight: bold;
+        }
+        
+        .buttons.uimod-xpmeter-1 {
+            line-height: 1;
+            font-size: 13px;
+        }
+
+        .left.uimod-xpmeter-3 {
+            padding-left: 4px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .right.uimod-xpmeter-3 {
+            position: absolute;
+            right: 7px;
+            z-index: 1;
         }
 	`);
 
@@ -544,13 +613,13 @@
             state.xpMeterState.xpGains = []; /** array of xp deltas every second */
             state.xpMeterState.averageXp = 0;
             state.xpMeterState.gainedXp = 0;
-            document.querySelector('#timeremain').textContent = '-:-:-'
+            document.querySelector('.js-xp-time').textContent = '-:-:-';
         },
 
         /** toggle the xp meter */
         toggleXpMeterVisibility: () => {
-            const xpMeterContainer = document.querySelector('.js-xpmeter')
-            xpMeterContainer.style.display === "none" ? xpMeterContainer.style.display = "block" : xpMeterContainer.style.display = "none";
+            const xpMeterContainer = document.querySelector('.js-xpmeter');
+            xpMeterContainer.style.display === 'none' ? xpMeterContainer.style.display = 'block' : xpMeterContainer.style.display = 'none';
         },
 
     };
@@ -1185,41 +1254,45 @@
             $xpMeterToggleElement.innerHTML = 'XP';
 
             /** xpMeterElement */
-            const xpMeterHTMLString = `<div class="l-corner-lr container svelte-rhzpkh js-xpmeter" style="display: none">
-            <div class="window panel-black svelte-1rw636">
-                <div class="titleframe svelte-1rw636">
-                    <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon svelte-1rw636">
-                        <div class="textprimary title svelte-1rw636">
+            const xpMeterHTMLString = `<div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
+            <div class="window panel-black uimod-xpmeter-2">
+                <div class="titleframe uimod-xpmeter-2">
+                    <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon uimod-xpmeter-2">
+                        <div class="textprimary title uimod-xpmeter-2">
                             <div name="title">Experience / XP</div>
                         </div>
                         <img src="/assets/ui/icons/cross.svg?v=3282286" class="js-xpmeter-close-icon btn black svgicon">
                 </div>
-                <div class="slot svelte-1rw636" style="">
-                    <div class="wrapper svelte-rhzpkh">
-                        <div class="bar  svelte-kl29tr" style="z-index: 0;">
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                                <span class="left svelte-kl29tr">XP per minute:</span>
-                                <span class="right svelte-kl29tr" id="xpm">-</span>
+                <div class="slot uimod-xpmeter-2" style="">
+                    <div class="wrapper uimod-xpmeter-1">
+                        <div class="bar  uimod-xpmeter-3" style="z-index: 0;">
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">XP per minute:</span>
+                                <span class="right uimod-xpmeter-3 js-xpm">-</span>
                             </div>
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                                <span class="left svelte-kl29tr">XP per hour:</span>
-                                <span class="right svelte-kl29tr" id="xph">-</span>
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">XP per hour:</span>
+                                <span class="right uimod-xpmeter-3 js-xph">-</span>
                             </div>
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                                <span class="left svelte-kl29tr">XP Gained:</span>
-                                <span class="right svelte-kl29tr" id="xpGained">-</span>
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">XP Gained:</span>
+                                <span class="right uimod-xpmeter-3 js-xpg">-</span>
+                            </div>                 
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">XP Left:</span>
+                                <span class="right uimod-xpmeter-3 js-xpl">-</span>
                             </div>
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                                <span class="left svelte-kl29tr">XP Left:</span>
-                                <span class="right svelte-kl29tr" id="xpl">-</span>
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">Session Time: </span>
+                                <span class="right uimod-xpmeter-3 js-xp-s-time">-</span>
                             </div>
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                            <span class="left svelte-kl29tr">Time to lvl: </span>
-                            <span class="right svelte-kl29tr" id="timeremain">-</span>
-                        </div>
+                            <div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+                                <span class="left uimod-xpmeter-3">Time to lvl: </span>
+                                <span class="right uimod-xpmeter-3 js-xp-time">-</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="grid buttons marg-top svelte-rhzpkh js-xpmeter-reset-button">
+                    <div class="grid buttons marg-top uimod-xpmeter-1 js-xpmeter-reset-button">
                         <div class="btn grey">Reset</div>
                     </div>
                 </div>
@@ -1240,29 +1313,29 @@
 
             if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
 
+            /** every second we run the operations for xp meter, update xps, calc delta, etc */
             tempState.xpMeterInterval = setInterval(() => {
-
 
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
                 state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); /** array of xp deltas every second */
                 state.xpMeterState.currentXp = modHelpers.getCurrentXp();
                 state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length; /** array of xp deltas every second */
 
-                document.querySelector('#xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
-                document.querySelector('#xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
-                document.querySelector('#xpGained').textContent = state.xpMeterState.gainedXp.toLocaleString();
-                document.querySelector('#xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
+                document.querySelector('.js-xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
+                document.querySelector('.js-xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
+                document.querySelector('.js-xpg').textContent = state.xpMeterState.gainedXp.toLocaleString();
+                document.querySelector('.js-xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
+                document.querySelector('.js-xp-s-time').textContent = msToString(state.xpMeterState.xpGains.length * 1000)
 
-                if (state.xpMeterState.averageXp > 0) {
-                    document.querySelector('#timeremain').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
-                }
+                /** need a positive integer for averageXp to calc time left */
+                if (state.xpMeterState.averageXp > 0) document.querySelector('.js-xp-time').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
 
                 if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
                     modHelpers.resetXpMeterState();
                     state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
                 }
 
-                // console.log(state.xpMeterState);
+                console.log(state.xpMeterState);
             }, 1000);
         }
     ];
