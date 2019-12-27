@@ -1335,7 +1335,7 @@
                     state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
                 }
 
-                console.log(state.xpMeterState);
+                // console.log(state.xpMeterState);
             }, 1000);
         }
     ];
