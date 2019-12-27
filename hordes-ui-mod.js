@@ -1199,10 +1199,6 @@
                     <div class="wrapper svelte-rhzpkh">
                         <div class="bar  svelte-kl29tr" style="z-index: 0;">
                             <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
-                                <span class="left svelte-kl29tr">XP per Second:</span>
-                                <span class="right svelte-kl29tr" id="xps">-</span>
-                            </div>
-                            <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
                                 <span class="left svelte-kl29tr">XP per minute:</span>
                                 <span class="right svelte-kl29tr" id="xpm">-</span>
                             </div>
@@ -1257,7 +1253,6 @@
                 state.xpMeterState.currentXp = modHelpers.getCurrentXp();
                 state.xpMeterState.averageXp = state.xpMeterState.xpArr.reduce((a, b) => a + b) / state.xpMeterState.xpArr.length;
 
-                document.querySelector('#xps').textContent = parseInt(state.xpMeterState.averageXp.toFixed(0)).toLocaleString();
                 document.querySelector('#xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
                 document.querySelector('#xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
                 document.querySelector('#xpGained').textContent = state.xpMeterState.gainedXp.toLocaleString();
