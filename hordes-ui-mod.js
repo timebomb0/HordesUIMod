@@ -1225,7 +1225,7 @@
                         </div>
                         </div>
                     </div>
-                    <div class="grid two buttons marg-top svelte-rhzpkh">
+                    <div class="grid buttons marg-top svelte-rhzpkh">
                         <div class="btn grey">Reset</div>
                     </div>
                 </div>
