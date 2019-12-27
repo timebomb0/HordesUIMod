@@ -1245,10 +1245,7 @@
 
             const $layoutContainer = document.querySelector('body > div.layout > div.container:nth-child(1)');
             const $dpsMeterToggleElement = document.querySelector('#systrophy');
-
-            const $xpMeterToggleElement = document.createElement('div');
-            $xpMeterToggleElement.className = 'js-sysxp js-xpmeter-icon btn border black';
-            $xpMeterToggleElement.innerHTML = 'XP';
+            const $xpMeterToggleElement = makeElement({ element: 'div', class: 'js-sysxp js-xpmeter-icon btn border black', content: 'XP' });
 
             const xpMeterHTMLString = `<div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
             <div class="window panel-black uimod-xpmeter-2">
@@ -1307,33 +1304,34 @@
             state.xpMeterState.currentXp = modHelpers.getCurrentXp();
             state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
 
-            if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
+            if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval);
+
+
 
             // every second we run the operations for xp meter, update xps, calc delta, etc
             tempState.xpMeterInterval = setInterval(() => {
+                if (!document.querySelector('#expbar')) {
+                    return
+                }
+                
+                state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
+                state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); // array of xp deltas every second
+                state.xpMeterState.currentXp = modHelpers.getCurrentXp();
+                state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
 
-                if (document.querySelector('#expbar')) {
-                    state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
-                    state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); // array of xp deltas every second
-                    state.xpMeterState.currentXp = modHelpers.getCurrentXp();
-                    state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
+                if (document.querySelector('.js-xpmeter')) {
+                    document.querySelector('.js-xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
+                    document.querySelector('.js-xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
+                    document.querySelector('.js-xpg').textContent = state.xpMeterState.gainedXp.toLocaleString();
+                    document.querySelector('.js-xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
+                    document.querySelector('.js-xp-s-time').textContent = msToString(state.xpMeterState.xpGains.length * 1000)
+                    // need a positive integer for averageXp to calc time left
+                    if (state.xpMeterState.averageXp > 0) document.querySelector('.js-xp-time').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
+                }
 
-
-                    if (document.querySelector('.js-xpmeter')) {
-                        document.querySelector('.js-xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
-                        document.querySelector('.js-xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
-                        document.querySelector('.js-xpg').textContent = state.xpMeterState.gainedXp.toLocaleString();
-                        document.querySelector('.js-xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
-                        document.querySelector('.js-xp-s-time').textContent = msToString(state.xpMeterState.xpGains.length * 1000)
-                        // need a positive integer for averageXp to calc time left
-                        if (state.xpMeterState.averageXp > 0) document.querySelector('.js-xp-time').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
-                    }
-
-                    if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
-                        modHelpers.resetXpMeterState();
-                        state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
-                    }
-
+                if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
+                    modHelpers.resetXpMeterState();
+                    state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
                 }
             }, 1000);
         }
