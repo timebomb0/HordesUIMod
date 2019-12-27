@@ -549,7 +549,7 @@
 
         /** toggle the xp meter */
         toggleXpMeterVisibility: () => {
-            const xpMeterContainer = document.querySelector('#xpmeter')
+            const xpMeterContainer = document.querySelector('.js-xpmeter')
             xpMeterContainer.style.display === "none" ? xpMeterContainer.style.display = "block" : xpMeterContainer.style.display = "none";
         },
 
@@ -1181,19 +1181,18 @@
 
             /** $xpMeterToggleElement */
             const $xpMeterToggleElement = document.createElement('div');
-            $xpMeterToggleElement.id = 'sysxp';
-            $xpMeterToggleElement.className = 'btn border black';
+            $xpMeterToggleElement.className = 'js-sysxp js-xpmeter-icon btn border black';
             $xpMeterToggleElement.innerHTML = 'XP';
 
             /** xpMeterElement */
-            const xpMeterHTMLString = `<div class="l-corner-lr container svelte-rhzpkh" id="xpmeter" style="display: none">
+            const xpMeterHTMLString = `<div class="l-corner-lr container svelte-rhzpkh js-xpmeter" style="display: none">
             <div class="window panel-black svelte-1rw636">
                 <div class="titleframe svelte-1rw636">
                     <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon svelte-1rw636">
                         <div class="textprimary title svelte-1rw636">
                             <div name="title">Experience / XP</div>
                         </div>
-                        <img src="/assets/ui/icons/cross.svg?v=3282286" class="btn black svgicon">
+                        <img src="/assets/ui/icons/cross.svg?v=3282286" class="js-xpmeter-close-icon btn black svgicon">
                 </div>
                 <div class="slot svelte-1rw636" style="">
                     <div class="wrapper svelte-rhzpkh">
@@ -1220,7 +1219,7 @@
                         </div>
                         </div>
                     </div>
-                    <div class="grid buttons marg-top svelte-rhzpkh">
+                    <div class="grid buttons marg-top svelte-rhzpkh js-xpmeter-reset-button">
                         <div class="btn grey">Reset</div>
                     </div>
                 </div>
@@ -1229,13 +1228,12 @@
 
             $dpsMeterToggleElement.parentNode.insertBefore($xpMeterToggleElement, $dpsMeterToggleElement.nextSibling);
 
-            const $xpMeterElement = document.createElement('div');
-            $xpMeterElement.innerHTML = xpMeterHTMLString.trim();
+            const $xpMeterElement = makeElement({ element: 'div', content: xpMeterHTMLString.trim() })
             $layoutContainer.appendChild($xpMeterElement.firstChild);
 
-            document.querySelector('#sysxp').addEventListener('click', modHelpers.toggleXpMeterVisibility);
-            document.querySelector('#xpmeter > div > div.titleframe > img.btn.black.svgicon').addEventListener('click', modHelpers.toggleXpMeterVisibility);
-            document.querySelector('#xpmeter > div > div.slot > div.grid.buttons.marg-top > div.btn').addEventListener('click', modHelpers.resetXpMeterState);
+            document.querySelector('.js-sysxp').addEventListener('click', modHelpers.toggleXpMeterVisibility);
+            document.querySelector('.js-xpmeter-close-icon').addEventListener('click', modHelpers.toggleXpMeterVisibility);
+            document.querySelector('.js-xpmeter-reset-button').addEventListener('click', modHelpers.resetXpMeterState);
 
             state.xpMeterState.currentXp = modHelpers.getCurrentXp();
             state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
