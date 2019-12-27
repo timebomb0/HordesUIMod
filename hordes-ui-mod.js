@@ -534,13 +534,10 @@
             save();
         },
 
-        /** get char level */
-        getCurrentLvl: () => Number(document.querySelector('#ufplayer > div > div > div.progressBar.bgmana > .left').textContent.split('Lv. ')[1]),
+        getCurrentCharacterLvl: () => Number(document.querySelector('#ufplayer > div > div > div.progressBar.bgmana > .left').textContent.split('Lv. ')[1]),
 
-        /** get current xp */
         getCurrentXp: () => Number(document.querySelector('#expbar > .bar > .progressBar > .left').textContent.split('/')[0].trim()),
 
-        /** get next level xp */
         getNextLevelXp: () => Number(document.querySelector('#expbar > .bar > .progressBar > .left').textContent.split('/')[1].trim()),
 
         /** user invoked reset of xp meter stats */
@@ -552,18 +549,10 @@
         },
 
         /** toggle the xp meter */
-        toggleXpMeter: () => {
+        toggleXpMeterVisibility: () => {
             const xpMeterContainer = document.querySelector('#xpmeter')
             xpMeterContainer.style.display === "none" ? xpMeterContainer.style.display = "block" : xpMeterContainer.style.display = "none";
         },
-
-        msToString: (ms) => {
-            const pad = value => (value < 10 ? `0${value}` : value);
-            const hours = pad(Math.floor((ms / (1000 * 60 * 60)) % 60));
-            const minutes = pad(Math.floor((ms / (1000 * 60)) % 60));
-            const seconds = pad(Math.floor((ms / 1000) % 60));
-            return `${hours}:${minutes}:${seconds}`;
-        }
 
     };
 
@@ -1193,21 +1182,21 @@
 
             /** $xpMeterToggleElement */
             const $xpMeterToggleElement = document.createElement('div');
-            $xpMeterToggleElement.id = "sysxp";
-            $xpMeterToggleElement.className = "btn border black";
-            $xpMeterToggleElement.innerHTML = `XP`;
+            $xpMeterToggleElement.id = 'sysxp';
+            $xpMeterToggleElement.className = 'btn border black';
+            $xpMeterToggleElement.innerHTML = 'XP';
 
             /** xpMeterElement */
-            const xpMeterHTMLString = `<div class="l-corner-lr container svelte-rhzpkh" id="xpmeter" style="display: none">\
-            <div class="window panel-black svelte-1rw636">\
-                <div class="titleframe svelte-1rw636">\
-                    <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon svelte-1rw636">\
-                        <div class="textprimary title svelte-1rw636">\
-                            <div name="title">Experience / XP</div>\
-                        </div>\
-                        <img src="/assets/ui/icons/cross.svg?v=3282286" class="btn black svgicon">\
-                </div>\
-                <div class="slot svelte-1rw636" style="">\
+            const xpMeterHTMLString = `<div class="l-corner-lr container svelte-rhzpkh" id="xpmeter" style="display: none">
+            <div class="window panel-black svelte-1rw636">
+                <div class="titleframe svelte-1rw636">
+                    <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon svelte-1rw636">
+                        <div class="textprimary title svelte-1rw636">
+                            <div name="title">Experience / XP</div>
+                        </div>
+                        <img src="/assets/ui/icons/cross.svg?v=3282286" class="btn black svgicon">
+                </div>
+                <div class="slot svelte-1rw636" style="">
                     <div class="wrapper svelte-rhzpkh">
                         <div class="bar  svelte-kl29tr" style="z-index: 0;">
                             <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
@@ -1235,12 +1224,12 @@
                             <span class="right svelte-kl29tr" id="timeremain">-</span>
                         </div>
                         </div>
-                    </div>\
-                    <div class="grid two buttons marg-top svelte-rhzpkh">\
-                        <div class="btn grey">Reset</div>\
-                    </div>\
-                </div>\
-            </div>\
+                    </div>
+                    <div class="grid two buttons marg-top svelte-rhzpkh">
+                        <div class="btn grey">Reset</div>
+                    </div>
+                </div>
+            </div>
         </div>`;
 
             $dpsMeterToggleElement.parentNode.insertBefore($xpMeterToggleElement, $dpsMeterToggleElement.nextSibling);
@@ -1249,19 +1238,19 @@
             $xpMeterElement.innerHTML = xpMeterHTMLString.trim();
             $layoutContainer.appendChild($xpMeterElement.firstChild);
 
-            document.querySelector('#sysxp').addEventListener('click', modHelpers.toggleXpMeter);
-            document.querySelector('#xpmeter > div > div.titleframe > img.btn.black.svgicon').addEventListener('click', modHelpers.toggleXpMeter);
+            document.querySelector('#sysxp').addEventListener('click', modHelpers.toggleXpMeterVisibility);
+            document.querySelector('#xpmeter > div > div.titleframe > img.btn.black.svgicon').addEventListener('click', modHelpers.toggleXpMeterVisibility);
             document.querySelector('#xpmeter > div > div.slot > div.grid.two.buttons.marg-top > div.btn').addEventListener('click', modHelpers.resetXpMeterState);
 
             state.xpMeterState.currentXp = modHelpers.getCurrentXp();
-            state.xpMeterState.currentLvl = modHelpers.getCurrentLvl();
+            state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
 
             if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
 
             tempState.xpMeterInterval = setInterval(() => {
-                if (state.xpMeterState.currentLvl < modHelpers.getCurrentLvl()) {
+                if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
                     modHelpers.resetXpMeterState();
-                    state.xpMeterState.currentLvl = modHelpers.getCurrentLvl();
+                    state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
                 }
 
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
@@ -1275,7 +1264,7 @@
                 document.querySelector('#xpGained').textContent = state.xpMeterState.gainedXp.toLocaleString();
                 document.querySelector('#xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
                 if (state.xpMeterState.averageXp > 0) {
-                    document.querySelector('#timeremain').textContent = modHelpers.msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
+                    document.querySelector('#timeremain').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
                 }
                 // console.log(state.xpMeterState);
             }, 1000);
@@ -1459,4 +1448,14 @@
         }
         return uuid;
     }
+
+    /** milliseconds to humand readable */
+    function msToString(ms) {
+        const pad = value => (value < 10 ? `0${value}` : value);
+        const hours = pad(Math.floor((ms / (1000 * 60 * 60)) % 60));
+        const minutes = pad(Math.floor((ms / (1000 * 60)) % 60));
+        const seconds = pad(Math.floor((ms / 1000) % 60));
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
 })();
