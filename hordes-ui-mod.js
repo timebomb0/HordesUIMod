@@ -1267,7 +1267,7 @@
                 if (state.xpMeterState.averageXp > 0) {
                     document.querySelector('#timeremain').textContent = modHelpers.msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
                 }
-                console.log(state.xpMeterState);
+                // console.log(state.xpMeterState);
             }, 1000);
         }
     ];
