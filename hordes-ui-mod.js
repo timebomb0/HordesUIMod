@@ -43,7 +43,7 @@
         chatTabs: [],
         xpMeterState: {
             currentXp: 0,
-            xpGains: [], /** array of xp deltas every second */
+            xpGains: [], // array of xp deltas every second
             averageXp: 0,
             gainedXp: 0,
             currentLvl: 0
@@ -56,7 +56,7 @@
         chatName: null,
         lastMapWidth: 0,
         lastMapHeight: 0,
-        xpMeterInterval: null, /** tracks the interval for fetching xp data */
+        xpMeterInterval: null, // tracks the interval for fetching xp data
     };
 
     // UPDATING STYLES BELOW - Must be invoked in main function
@@ -608,18 +608,18 @@
 
         getNextLevelXp: () => Number(document.querySelector('#expbar .progressBar > .left').textContent.split('/')[1].trim()),
 
-        /** user invoked reset of xp meter stats */
+        // user invoked reset of xp meter stats
         resetXpMeterState: () => {
-            state.xpMeterState.xpGains = []; /** array of xp deltas every second */
+            state.xpMeterState.xpGains = []; // array of xp deltas every second
             state.xpMeterState.averageXp = 0;
             state.xpMeterState.gainedXp = 0;
             document.querySelector('.js-xp-time').textContent = '-:-:-';
         },
 
-        /** toggle the xp meter */
+        // toggle the xp meter
         toggleXpMeterVisibility: () => {
             const xpMeterContainer = document.querySelector('.js-xpmeter');
-            xpMeterContainer.style.display === 'none' ? xpMeterContainer.style.display = 'block' : xpMeterContainer.style.display = 'none';
+            xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
         },
 
     };
@@ -1242,18 +1242,14 @@
         },
 
         function xpMeter() {
-            /** elements  */
-            const $layoutContainer = document.querySelector('body > div.layout > div.container:nth-child(1)');
 
-            /** dps meter toggle */
+            const $layoutContainer = document.querySelector('body > div.layout > div.container:nth-child(1)');
             const $dpsMeterToggleElement = document.querySelector('#systrophy');
 
-            /** $xpMeterToggleElement */
             const $xpMeterToggleElement = document.createElement('div');
             $xpMeterToggleElement.className = 'js-sysxp js-xpmeter-icon btn border black';
             $xpMeterToggleElement.innerHTML = 'XP';
 
-            /** xpMeterElement */
             const xpMeterHTMLString = `<div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
             <div class="window panel-black uimod-xpmeter-2">
                 <div class="titleframe uimod-xpmeter-2">
@@ -1313,13 +1309,13 @@
 
             if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
 
-            /** every second we run the operations for xp meter, update xps, calc delta, etc */
+            // every second we run the operations for xp meter, update xps, calc delta, etc
             tempState.xpMeterInterval = setInterval(() => {
 
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
-                state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); /** array of xp deltas every second */
+                state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); // array of xp deltas every second
                 state.xpMeterState.currentXp = modHelpers.getCurrentXp();
-                state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length; /** array of xp deltas every second */
+                state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
 
                 document.querySelector('.js-xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
                 document.querySelector('.js-xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
@@ -1327,15 +1323,13 @@
                 document.querySelector('.js-xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
                 document.querySelector('.js-xp-s-time').textContent = msToString(state.xpMeterState.xpGains.length * 1000)
 
-                /** need a positive integer for averageXp to calc time left */
+                // need a positive integer for averageXp to calc time left
                 if (state.xpMeterState.averageXp > 0) document.querySelector('.js-xp-time').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
 
                 if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
                     modHelpers.resetXpMeterState();
                     state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
                 }
-
-                // console.log(state.xpMeterState);
             }, 1000);
         }
     ];
