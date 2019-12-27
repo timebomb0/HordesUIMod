@@ -1208,7 +1208,7 @@
                             <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
                                 <span class="left svelte-kl29tr">XP Gained:</span>
                                 <span class="right svelte-kl29tr" id="xpGained">-</span>
-                            </div>                 
+                            </div>
                             <div class="progressBar bgc1 svelte-kl29tr" style="width: 100%; font-size: 1em;">
                                 <span class="left svelte-kl29tr">XP Left:</span>
                                 <span class="right svelte-kl29tr" id="xpl">-</span>
@@ -1241,10 +1241,7 @@
             if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
 
             tempState.xpMeterInterval = setInterval(() => {
-                if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
-                    modHelpers.resetXpMeterState();
-                    state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
-                }
+
 
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
                 state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); /** array of xp deltas every second */
@@ -1255,9 +1252,16 @@
                 document.querySelector('#xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
                 document.querySelector('#xpGained').textContent = state.xpMeterState.gainedXp.toLocaleString();
                 document.querySelector('#xpl').textContent = (modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()).toLocaleString();
+
                 if (state.xpMeterState.averageXp > 0) {
                     document.querySelector('#timeremain').textContent = msToString((modHelpers.getNextLevelXp() - modHelpers.getCurrentXp()) / state.xpMeterState.averageXp * 1000);
                 }
+
+                if (state.xpMeterState.currentLvl < modHelpers.getCurrentCharacterLvl()) {
+                    modHelpers.resetXpMeterState();
+                    state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
+                }
+
                 // console.log(state.xpMeterState);
             }, 1000);
         }
