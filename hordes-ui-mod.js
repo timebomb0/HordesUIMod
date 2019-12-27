@@ -2,10 +2,9 @@
 // @name         Hordes UI Mod
 // @version      0.190
 // @description  Various UI mods for Hordes.io.
-// @author       Sakaiyo
+// @author       Sakaiyo & Chandog#6373
 // @match        https://hordes.io/play
 // @grant        GM_addStyle
-// @namespace https://greasyfork.org/users/160017
 // ==/UserScript==
 /**
   * TODO: Add whisper chat filter
