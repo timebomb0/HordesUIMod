@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.190
+// @version      0.200
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo & Chandog#6373
 // @match        https://hordes.io/play
@@ -25,7 +25,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.190'; // Should match version in UserScript description
+    const VERSION = '0.200'; // Should match version in UserScript description
 
     const DEFAULT_CHAT_TAB_NAME = 'Untitled';
     const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
