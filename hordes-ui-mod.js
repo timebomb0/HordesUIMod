@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.200
+// @version      0.201
 // @description  Various UI mods for Hordes.io.
 // @author       Sakaiyo & Chandog#6373
 // @match        https://hordes.io/play
@@ -25,7 +25,7 @@
     // e.g. they have upgraded the version of this script and there are breaking changes,
     // then their stored state will be deleted.
     const BREAKING_VERSION = 1;
-    const VERSION = '0.200'; // Should match version in UserScript description
+    const VERSION = '0.201'; // Should match version in UserScript description
 
     const DEFAULT_CHAT_TAB_NAME = 'Untitled';
     const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
@@ -43,7 +43,7 @@
         chatTabs: [],
         xpMeterState: {
             currentXp: 0,
-            xpArr: [],
+            xpGains: [], /** array of xp deltas every second */
             averageXp: 0,
             gainedXp: 0,
             currentLvl: 0
@@ -56,7 +56,7 @@
         chatName: null,
         lastMapWidth: 0,
         lastMapHeight: 0,
-        xpMeterInterval: null,
+        xpMeterInterval: null, /** tracks the interval for fetching xp data */
     };
 
     // UPDATING STYLES BELOW - Must be invoked in main function
@@ -533,15 +533,15 @@
             save();
         },
 
-        getCurrentCharacterLvl: () => Number(document.querySelector('#ufplayer > div > div > div.progressBar.bgmana > .left').textContent.split('Lv. ')[1]),
+        getCurrentCharacterLvl: () => Number(document.querySelector('#ufplayer .bgmana > .left').textContent.split('Lv. ')[1]),
 
-        getCurrentXp: () => Number(document.querySelector('#expbar > .bar > .progressBar > .left').textContent.split('/')[0].trim()),
+        getCurrentXp: () => Number(document.querySelector('#expbar .progressBar > .left').textContent.split('/')[0].trim()),
 
-        getNextLevelXp: () => Number(document.querySelector('#expbar > .bar > .progressBar > .left').textContent.split('/')[1].trim()),
+        getNextLevelXp: () => Number(document.querySelector('#expbar .progressBar > .left').textContent.split('/')[1].trim()),
 
         /** user invoked reset of xp meter stats */
         resetXpMeterState: () => {
-            state.xpMeterState.xpArr = [];
+            state.xpMeterState.xpGains = []; /** array of xp deltas every second */
             state.xpMeterState.averageXp = 0;
             state.xpMeterState.gainedXp = 0;
             document.querySelector('#timeremain').textContent = '-:-:-'
@@ -1235,7 +1235,7 @@
 
             document.querySelector('#sysxp').addEventListener('click', modHelpers.toggleXpMeterVisibility);
             document.querySelector('#xpmeter > div > div.titleframe > img.btn.black.svgicon').addEventListener('click', modHelpers.toggleXpMeterVisibility);
-            document.querySelector('#xpmeter > div > div.slot > div.grid.two.buttons.marg-top > div.btn').addEventListener('click', modHelpers.resetXpMeterState);
+            document.querySelector('#xpmeter > div > div.slot > div.grid.buttons.marg-top > div.btn').addEventListener('click', modHelpers.resetXpMeterState);
 
             state.xpMeterState.currentXp = modHelpers.getCurrentXp();
             state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
@@ -1249,9 +1249,9 @@
                 }
 
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
-                state.xpMeterState.xpArr.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp);
+                state.xpMeterState.xpGains.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp); /** array of xp deltas every second */
                 state.xpMeterState.currentXp = modHelpers.getCurrentXp();
-                state.xpMeterState.averageXp = state.xpMeterState.xpArr.reduce((a, b) => a + b) / state.xpMeterState.xpArr.length;
+                state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length; /** array of xp deltas every second */
 
                 document.querySelector('#xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
                 document.querySelector('#xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
