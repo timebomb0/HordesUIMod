@@ -1,10 +1,11 @@
 // ==UserScript==
 // @name         Hordes UI Mod
-// @version      0.191
+// @version      0.190
 // @description  Various UI mods for Hordes.io.
-// @author       Sakaiyo & Chandog#6373
+// @author       Sakaiyo
 // @match        https://hordes.io/play
 // @grant        GM_addStyle
+// @namespace https://greasyfork.org/users/160017
 // ==/UserScript==
 /**
   * TODO: Add whisper chat filter
@@ -45,7 +46,8 @@
             currentXp: 0,
             xpArr: [],
             averageXp: 0,
-            gainedXp: 0
+            gainedXp: 0,
+            currentLvl: 0
         }
     };
 
@@ -532,6 +534,8 @@
             save();
         },
 
+        /** get char level */
+        getCurrentLvl: () => Number(document.querySelector('#ufplayer > div > div > div.progressBar.bgmana > .left').textContent.split('Lv. ')[1]),
 
         /** get current xp */
         getCurrentXp: () => Number(document.querySelector('#expbar > .bar > .progressBar > .left').textContent.split('/')[0].trim()),
@@ -1199,7 +1203,7 @@
                 <div class="titleframe svelte-1rw636">\
                     <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon svelte-1rw636">\
                         <div class="textprimary title svelte-1rw636">\
-                            <div name="title">Experience / XPS</div>\
+                            <div name="title">Experience / XP</div>\
                         </div>\
                         <img src="/assets/ui/icons/cross.svg?v=3282286" class="btn black svgicon">\
                 </div>\
@@ -1250,10 +1254,16 @@
             document.querySelector('#xpmeter > div > div.slot > div.grid.two.buttons.marg-top > div.btn').addEventListener('click', modHelpers.resetXpMeterState);
 
             state.xpMeterState.currentXp = modHelpers.getCurrentXp();
+            state.xpMeterState.currentLvl = modHelpers.getCurrentLvl();
 
             if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval)
 
             tempState.xpMeterInterval = setInterval(() => {
+                if (state.xpMeterState.currentLvl < modHelpers.getCurrentLvl()) {
+                    modHelpers.resetXpMeterState();
+                    state.xpMeterState.currentLvl = modHelpers.getCurrentLvl();
+                }
+
                 state.xpMeterState.gainedXp += modHelpers.getCurrentXp() - state.xpMeterState.currentXp;
                 state.xpMeterState.xpArr.push(modHelpers.getCurrentXp() - state.xpMeterState.currentXp);
                 state.xpMeterState.currentXp = modHelpers.getCurrentXp();
