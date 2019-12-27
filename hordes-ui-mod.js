@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name		 Hordes UI Mod
-// @version	  0.190
+// @name         Hordes UI Mod
+// @version      0.200
 // @description  Various UI mods for Hordes.io.
-// @author	   Sakaiyo
-// @match		https://hordes.io/play
-// @grant		GM_addStyle
+// @author       Sakaiyo & Chandog#6373
+// @match        https://hordes.io/play
+// @grant        GM_addStyle
 // ==/UserScript==
 /**
   * Potential Future Changes:
@@ -34,7 +34,7 @@
 	// e.g. they have upgraded the version of this script and there are breaking changes,
 	// then their stored state will be deleted.
 	const BREAKING_VERSION = 1;
-	const VERSION = '0.190'; // Should match version in UserScript description
+	const VERSION = '0.200'; // Should match version in UserScript description
 
 	const DEFAULT_CHAT_TAB_NAME = 'Untitled';
 	const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
@@ -50,13 +50,22 @@
 		mapOpacity: 70, // e.g. 70 = opacity: 0.7
 		friendNotes: {},
 		chatTabs: [],
+		xpMeterState: {
+			currentXp: 0,
+			xpGains: [], // array of xp deltas every second
+			averageXp: 0,
+			gainedXp: 0,
+			currentLvl: 0,
+		}
 	};
+
 	// tempState is saved only between page refreshes.
 	const tempState = {
 		// The last name clicked in chat
 		chatName: null,
 		lastMapWidth: 0,
 		lastMapHeight: 0,
+		xpMeterInterval: null, // tracks the interval for fetching xp data
 	};
 
 	// UPDATING STYLES BELOW - Must be invoked in main function
@@ -266,6 +275,75 @@
 		.uimod-chat-tab-config input {
 			font-size: 12px;
 		}
+
+		.container.uimod-xpmeter-1 {
+			z-index: 6;
+		}
+
+		.window.uimod-xpmeter-2 {
+			padding: 5px;
+			height: 100%;
+			display: grid;
+			grid-template-rows: 30px 1fr;
+			grid-gap: 4px;
+			transform-origin: inherit;
+			min-width: fit-content;
+		}
+
+		.titleframe.uimod-xpmeter-2 {
+			line-height: 1em;
+			display: flex;
+			align-items: center;
+			position: relative;
+			letter-spacing: 0.5px;
+		}
+
+		.titleicon.uimod-xpmeter-2 {
+			margin: 3px;
+		}
+
+		.title.uimod-xpmeter-2 {
+			width: 100%;
+			padding-left: 4px;
+			font-weight: bold;
+		}
+
+		.slot.uimod-xpmeter-2 {
+			min-height: 0;
+		}
+
+		.wrapper.uimod-xpmeter-1 {
+			width: 200px;
+		}
+
+		.bar.uimod-xpmeter-3 {
+			background-color: rgba(45, 66, 71, 0.7);
+			border-radius: 1.5px;
+			position: relative;
+			color: #DAE8EA;
+			overflow: hidden;
+			text-shadow: 1px 1px 2px #10131d;
+			white-space: nowrap;
+			text-transform: capitalize;
+			font-weight: bold;
+		}
+
+		.buttons.uimod-xpmeter-1 {
+			line-height: 1;
+			font-size: 13px;
+		}
+
+		.left.uimod-xpmeter-3 {
+			padding-left: 4px;
+			position: relative;
+			z-index: 1;
+		}
+
+		.right.uimod-xpmeter-3 {
+			position: absolute;
+			right: 7px;
+			z-index: 1;
+		}
 	`);
 
 
@@ -310,10 +388,10 @@
 
 			// Custom channel filter
 			Object.keys(state.chat).forEach(channel => {
-		  		Array.from(document.querySelectorAll(`.text${channel}.content`)).forEach($textItem => {
-		  			const $line = $textItem.parentNode.parentNode;
-		  			$line.classList.toggle('js-line-hidden', !state.chat[channel]);
-		  		});
+				Array.from(document.querySelectorAll(`.text${channel}.content`)).forEach($textItem => {
+					const $line = $textItem.parentNode.parentNode;
+					$line.classList.toggle('js-line-hidden', !state.chat[channel]);
+				});
 			});
 		},
 
@@ -406,7 +484,8 @@
 			const element = makeElement({
 				element: 'article',
 				class: 'line svelte-1vrlsr3',
-				content: newMessageHTML});
+				content: newMessageHTML
+			});
 			document.querySelector('#chat').appendChild(element);
 		},
 
@@ -482,7 +561,7 @@
 
 			// Wire chat tab up to open config on right click
 			$tab.addEventListener('contextmenu', clickEvent => {
-				const mousePos = {x: clickEvent.pageX, y: clickEvent.pageY};
+				const mousePos = { x: clickEvent.pageX, y: clickEvent.pageY };
 				modHelpers.showChatTabConfigWindow(tabId, mousePos);
 			});
 			// And select chat tab on left click
@@ -543,6 +622,28 @@
 			modHelpers.filterAllChat();
 			save();
 		},
+
+		getCurrentCharacterLvl: () => Number(document.querySelector('#ufplayer .bgmana > .left').textContent.split('Lv. ')[1]),
+
+		getCurrentXp: () => Number(document.querySelector('#expbar .progressBar > .left').textContent.split('/')[0].trim()),
+
+		getNextLevelXp: () => Number(document.querySelector('#expbar .progressBar > .left').textContent.split('/')[1].trim()),
+
+		// user invoked reset of xp meter stats
+		resetXpMeterState: () => {
+			state.xpMeterState.xpGains = []; // array of xp deltas every second
+			state.xpMeterState.averageXp = 0;
+			state.xpMeterState.gainedXp = 0;
+			save();
+			document.querySelector('.js-xp-time').textContent = '-:-:-';
+		},
+
+		// toggle the xp meter
+		toggleXpMeterVisibility: () => {
+			const xpMeterContainer = document.querySelector('.js-xpmeter');
+			xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
+		},
+
 	};
 
 	// MAIN MODS BELOW
@@ -583,7 +684,7 @@
 				const editedChatTab = state.chatTabs.find(tab => tab.id === tempState.editedChatTabId);
 				const editedChatTabIndex = state.chatTabs.indexOf(editedChatTab);
 				state.chatTabs.splice(editedChatTabIndex, 1);
-				
+
 				// Remove the chat tab from DOM
 				const $chatTab = document.querySelector(`[data-tab-id="${tempState.editedChatTabId}"]`);
 				$chatTab.parentNode.removeChild($chatTab);
@@ -635,7 +736,7 @@
 			// Wire up the add chat tab button
 			document.querySelector('.js-chat-tab-add').addEventListener('click', clickEvent => {
 				const chatTabId = modHelpers.addChatTab();
-				const mousePos = {x: clickEvent.pageX, y: clickEvent.pageY};
+				const mousePos = { x: clickEvent.pageX, y: clickEvent.pageY };
 				modHelpers.showChatTabConfigWindow(chatTabId, mousePos);
 			});
 
@@ -655,7 +756,7 @@
 			// Wire up click event handlers onto the filters to update the selected chat tab's filters in state
 			document.querySelector('.channelselect').addEventListener('click', clickEvent => {
 				const $elementMouseIsOver = document.elementFromPoint(clickEvent.clientX, clickEvent.clientY);
-				
+
 				// We only want to change the filters if the user manually clicks the filter button
 				// If they clicked a chat tab and we programatically set filters, we don't want to update
 				// the current tab's filter state
@@ -789,7 +890,7 @@
 					const isMaximized = mapWidth > tempState.lastMapWidth && mapHeight > tempState.lastMapHeight;
 					if (!isMaximized) {
 						$map.style.width = state.mapWidth;
-	 					$map.style.height = state.mapHeight;
+						$map.style.height = state.mapHeight;
 					}
 				}
 
@@ -1145,7 +1246,7 @@
 				const showContextMenu = clickEvent => {
 					// TODO: Is there a way to pass the name to showChatContextMenumethod, instead of storing in tempState?
 					tempState.chatName = name;
-					modHelpers.showChatContextMenu(name, {x: clickEvent.pageX, y: clickEvent.pageY});
+					modHelpers.showChatContextMenu(name, { x: clickEvent.pageX, y: clickEvent.pageY });
 				};
 				$name.addEventListener('click', showContextMenu); // Left click
 				$name.addEventListener('contextmenu', showContextMenu); // Right click works too
@@ -1161,6 +1262,109 @@
 				addContextMenu($whisperName, name);
 			});
 		},
+
+		// Adds XP Meter DOM icon and window, starts continuous interval to get current xp over time
+		function xpMeter() {
+			const $layoutContainer = document.querySelector('body > div.layout > div.container:nth-child(1)');
+			const $dpsMeterToggleElement = document.querySelector('#systrophy');
+			const $xpMeterToggleElement = makeElement({ element: 'div', class: 'js-sysxp js-xpmeter-icon btn border black', content: 'XP' });
+
+			const xpMeterHTMLString = `
+				<div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
+					<div class="window panel-black uimod-xpmeter-2">
+						<div class="titleframe uimod-xpmeter-2">
+							<img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon uimod-xpmeter-2">
+								<div class="textprimary title uimod-xpmeter-2">
+									<div name="title">Experience / XP</div>
+								</div>
+								<img src="/assets/ui/icons/cross.svg?v=3282286" class="js-xpmeter-close-icon btn black svgicon">
+						</div>
+						<div class="slot uimod-xpmeter-2" style="">
+							<div class="wrapper uimod-xpmeter-1">
+								<div class="bar  uimod-xpmeter-3" style="z-index: 0;">
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">XP per minute:</span>
+										<span class="right uimod-xpmeter-3 js-xpm">-</span>
+									</div>
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">XP per hour:</span>
+										<span class="right uimod-xpmeter-3 js-xph">-</span>
+									</div>
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">XP Gained:</span>
+										<span class="right uimod-xpmeter-3 js-xpg">-</span>
+									</div>
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">XP Left:</span>
+										<span class="right uimod-xpmeter-3 js-xpl">-</span>
+									</div>
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">Session Time: </span>
+										<span class="right uimod-xpmeter-3 js-xp-s-time">-</span>
+									</div>
+									<div class="progressBar bgc1 uimod-xpmeter-3" style="width: 100%; font-size: 1em;">
+										<span class="left uimod-xpmeter-3">Time to lvl: </span>
+										<span class="right uimod-xpmeter-3 js-xp-time">-</span>
+									</div>
+								</div>
+							</div>
+							<div class="grid buttons marg-top uimod-xpmeter-1 js-xpmeter-reset-button">
+								<div class="btn grey">Reset</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			`;
+
+			$dpsMeterToggleElement.parentNode.insertBefore($xpMeterToggleElement, $dpsMeterToggleElement.nextSibling);
+
+			const $xpMeterElement = makeElement({ element: 'div', content: xpMeterHTMLString.trim() })
+			$layoutContainer.appendChild($xpMeterElement.firstChild);
+
+			// Wire up icon and xpmeter window
+			document.querySelector('.js-sysxp').addEventListener('click', modHelpers.toggleXpMeterVisibility);
+			document.querySelector('.js-xpmeter-close-icon').addEventListener('click', modHelpers.toggleXpMeterVisibility);
+			document.querySelector('.js-xpmeter-reset-button').addEventListener('click', modHelpers.resetXpMeterState);
+
+			state.xpMeterState.currentXp = modHelpers.getCurrentXp();
+			state.xpMeterState.currentLvl = modHelpers.getCurrentCharacterLvl();
+			save();
+
+			if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval);
+
+			// every second we run the operations for xp meter, update xps, calc delta, etc
+			tempState.xpMeterInterval = setInterval(() => {
+				if (!document.querySelector('#expbar')) {
+					return;
+				}
+
+				const currentXp = modHelpers.getCurrentXp();
+				const nextLvlXp = modHelpers.getNextLevelXp();
+				const currentLvl = modHelpers.getCurrentCharacterLvl();
+
+				state.xpMeterState.gainedXp += currentXp - state.xpMeterState.currentXp;
+				state.xpMeterState.xpGains.push(currentXp - state.xpMeterState.currentXp); // array of xp deltas every second
+				state.xpMeterState.currentXp = currentXp;
+				state.xpMeterState.averageXp = state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
+				save();
+
+				if (document.querySelector('.js-xpmeter')) {
+					document.querySelector('.js-xpm').textContent = parseInt((state.xpMeterState.averageXp * 60).toFixed(0)).toLocaleString();
+					document.querySelector('.js-xph').textContent = parseInt((state.xpMeterState.averageXp * 60 * 60).toFixed(0)).toLocaleString();
+					document.querySelector('.js-xpg').textContent = state.xpMeterState.gainedXp.toLocaleString();
+					document.querySelector('.js-xpl').textContent = (nextLvlXp - currentXp).toLocaleString();
+					document.querySelector('.js-xp-s-time').textContent = msToString(state.xpMeterState.xpGains.length * 1000)
+					// need a positive integer for averageXp to calc time left
+					if (state.xpMeterState.averageXp > 0) document.querySelector('.js-xp-time').textContent = msToString((nextLvlXp - currentXp) / state.xpMeterState.averageXp * 1000);
+				}
+
+				if (state.xpMeterState.currentLvl < currentLvl) {
+					modHelpers.resetXpMeterState();
+					state.xpMeterState.currentLvl = currentLvl;
+					save();
+				}
+			}, 1000);
+		}
 	];
 
 	// Add new DOM, load our stored state, wire it up, then continuously rerun specific methods whenever UI changes
@@ -1182,7 +1386,7 @@
 		const rerunObserver = new MutationObserver(() => {
 			// If new window appears, e.g. even if window is closed and reopened, we need to rewire it
 			// Fun fact: Some windows always exist in the DOM, even when hidden, e.g. Inventory
-			// 			 But some windows only exist in the DOM when open, e.g. Interaction
+			// 		     But some windows only exist in the DOM when open, e.g. Interaction
 			const modsToRerun = [
 				'saveDraggedUIWindows',
 				'draggableUIWindows',
@@ -1288,7 +1492,7 @@
 	// $draggedElement is the item that will be dragged.
 	// $dragTrigger is the element that must be held down to drag $draggedElement
 	function dragElement($draggedElement, $dragTrigger) {
-		let offset = [0,0];
+		let offset = [0, 0];
 		let isDown = false;
 		$dragTrigger.addEventListener('mousedown', function(e) {
 			isDown = true;
@@ -1326,7 +1530,6 @@
 		};
 	}
 
-
 	// Credit: https://gist.github.com/jcxplorer/823878
 	// Generate random UUID string
 	function uuid() {
@@ -1340,4 +1543,14 @@
 		}
 		return uuid;
 	}
+
+	// milliseconds to humand readable
+	function msToString(ms) {
+		const pad = value => (value < 10 ? `0${value}` : value);
+		const hours = pad(Math.floor((ms / (1000 * 60 * 60)) % 60));
+		const minutes = pad(Math.floor((ms / (1000 * 60)) % 60));
+		const seconds = pad(Math.floor((ms / 1000) % 60));
+		return `${hours}:${minutes}:${seconds}`;
+	}
+
 })();
