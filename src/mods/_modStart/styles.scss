@@ -1,0 +1,39 @@
+/* This file is for CSS mods that don't fit in any other individual mod folder */
+
+/* Transparent chat bg color */
+.frame.svelte-1vrlsr3 {
+	background: rgba(0, 0, 0, 0.4);
+}
+
+/* Our mod's chat message color */
+.textuimod {
+	color: #00dd33;
+}
+
+/* The browser resize icon */
+*::-webkit-resizer {
+	background: linear-gradient(to right, rgba(51, 77, 80, 0), rgba(203, 202, 165, 0.5));
+	border-radius: 8px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 1);
+}
+*::-moz-resizer {
+	background: linear-gradient(to right, rgba(51, 77, 80, 0), rgba(203, 202, 165, 0.5));
+	border-radius: 8px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 1);
+}
+
+/* Our custom window, closely mirrors main settings window */
+.uimod-custom-window {
+	position: absolute;
+	top: 100px;
+	left: 50%;
+	transform: translate(-50%, 0);
+	min-width: 350px;
+	max-width: 600px;
+	width: 90%;
+	height: 80%;
+	min-height: 350px;
+	max-height: 500px;
+	z-index: 9;
+	padding: 0px 10px 5px;
+}

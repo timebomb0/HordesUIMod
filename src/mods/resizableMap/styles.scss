@@ -1,0 +1,9 @@
+.js-map {
+	/* This makes sure scroll bars don't appear when resizing the map */
+	overflow: hidden;
+}
+.js-map-resize:hover {
+	resize: both;
+	overflow: auto;
+	direction: rtl;
+}

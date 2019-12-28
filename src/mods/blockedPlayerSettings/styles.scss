@@ -1,0 +1,10 @@
+/* Custom css for settings page, duplicates preexisting settings pane grid */
+.uimod-settings {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    grid-gap: 8px;
+    align-items: center;
+    max-height: 390px;
+    margin: 0 20px;
+    overflow-y: auto;
+}

@@ -1,0 +1,59 @@
+/* Custom chat tabs */
+.uimod-chat-tabs {
+    position: fixed;
+    margin-top: -22px;
+    left: 5px;
+    pointer-events: all;
+    color: #5b858e;
+    font-size: 12px;
+    font-weight: bold;
+}
+.uimod-chat-tabs > div {
+    cursor: pointer;
+    background-color: rgba(0,0,0,0.4);
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    display: inline-block;
+    border: 1px black solid;
+    border-bottom: 0;
+    margin-right: 2px;
+    padding: 3px 5px;
+}
+.uimod-chat-tabs > div:not(.js-selected-tab):hover {
+    border-color: #aaa;
+}
+.uimod-chat-tabs > .js-selected-tab {
+    color: #fff;
+}
+
+/* Chat tab custom config */
+.uimod-chat-tab-config {
+    position: absolute;
+    z-index: 9999999;
+    background-color: rgba(0,0,0,0.6);
+    color: white;
+    border-radius: 3px;
+    text-align: center;
+    padding: 8px 12px 8px 6px;
+    width: 175px;
+    font-size: 14px;
+    border: 1px solid black;
+    display: none;
+}
+
+.uimod-chat-tab-config-grid {
+    grid-template-columns: 35% 65%;
+    display: grid;
+    grid-gap: 6px;
+    align-items: center;
+}
+
+.uimod-chat-tab-config h1 {
+    font-size: 16px;
+    margin-top: 0;
+}
+
+.uimod-chat-tab-config .btn,
+.uimod-chat-tab-config input {
+    font-size: 12px;
+}

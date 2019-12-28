@@ -1,0 +1,15 @@
+	/* Custom chat context menu, invisible by default */
+    .js-chat-context-menu {
+        display: none;
+    }
+
+    .js-chat-context-menu .name {
+        color: white;
+        padding: 2px 4px;
+    }
+
+    /* Allow names in chat to be clicked */
+    #chat .name,
+    .textwhisper .textf1 {
+        pointer-events: all !important;
+    }

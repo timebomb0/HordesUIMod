@@ -1,0 +1,54 @@
+{
+	"name": "hordesuimod",
+	"version": "1.0.0",
+	"description": "Userscript mod for hordes.io",
+	"main": "src/compile.js",
+	"scripts": {
+		"build": "node src/compile.js"
+	},
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/timebomb0/HordesUIMod.git"
+	},
+	"author": "timebomb0",
+	"license": "GPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/timebomb0/HordesUIMod/issues"
+	},
+	"homepage": "https://github.com/timebomb0/HordesUIMod#readme",
+	"devDependencies": {
+		"eslint": "^6.1.0",
+		"eslint-config-airbnb": "^18.0.1",
+		"eslint-plugin-import": "^2.18.2",
+		"eslint-plugin-jsx-a11y": "^6.2.3",
+		"eslint-plugin-react": "^7.14.3",
+		"eslint-plugin-react-hooks": "^1.7.0",
+		"husky": "^3.1.0",
+		"lint-staged": "^9.5.0",
+		"prettier": "1.19.1"
+	},
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"*.js": [
+			"eslint --fix",
+			"prettier --write",
+			"git add"
+		]
+	},
+	"dependencies": {
+		"browserify": "^16.5.0",
+		"clean-css": "^4.2.1",
+		"esmify": "^2.1.1",
+		"node-sass": "^4.13.0",
+		"stream-to-string": "^1.2.0",
+		"uglifyify": "^5.0.2"
+	},
+	"engines": {
+		"node": ">=13.5.0"
+	}
+}

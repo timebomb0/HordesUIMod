@@ -1,0 +1,12 @@
+// ==UserScript==
+// @name         Hordes UI Mod
+// @version      {{version}}
+// @description  Various UI mods for Hordes.io.
+// @author       {{authors}}
+// @match        https://hordes.io/play
+// @grant        GM_addStyle
+// ==/UserScript==
+
+GM_addStyle(`{{css}}`);
+
+{{javascript}}
