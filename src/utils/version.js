@@ -4,4 +4,4 @@
 export const BREAKING_VERSION = 1;
 
 // Used for initialization message in chat, and userscript version
-export const VERSION = '1.0.0';
+export const VERSION = '1.0.1';
