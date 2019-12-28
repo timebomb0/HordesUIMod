@@ -9,7 +9,7 @@ function friendPlayer(playerName) {
 	}
 
 	state.friendsList[playerName] = true;
-	addChatMessage(`${playerName} has been added to your friends list.`);
+	chat.addChatMessage(`${playerName} has been added to your friends list.`);
 	saveState();
 }
 
@@ -22,7 +22,7 @@ function unfriendPlayer(playerName) {
 
 	delete state.friendsList[playerName];
 	delete state.friendNotes[playerName];
-	addChatMessage(`${playerName} is no longer on your friends list.`);
+	chat.addChatMessage(`${playerName} is no longer on your friends list.`);
 	saveState();
 }
 
@@ -36,7 +36,7 @@ function blockPlayer(playerName) {
 
 	state.blockList[playerName] = true;
 	chat.filterAllChat();
-	addChatMessage(`${playerName} has been blocked.`);
+	chat.addChatMessage(`${playerName} has been blocked.`);
 	saveState();
 }
 
@@ -45,7 +45,7 @@ function unblockPlayer(playerName) {
 	const state = getState();
 
 	delete state.blockList[playerName];
-	addChatMessage(`${playerName} has been unblocked.`);
+	chat.addChatMessage(`${playerName} has been unblocked.`);
 	saveState();
 
 	// Make messages visible again
