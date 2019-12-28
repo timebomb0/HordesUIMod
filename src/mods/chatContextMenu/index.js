@@ -102,11 +102,14 @@ export default {
 	name: 'Chat Context Menu',
 	description:
 		'Displays a menu when you click on a player, allowing you to whisper/party/friend/block them',
-	run: ({ registerOnPageClick }) => {
+	run: ({ registerOnPageClick, registerOnChatChange }) => {
 		createChatContextMenu();
 		chatContextMenu();
 
 		// When we click anywhere on the page outside of our chat context menu, we want to close the menu
 		registerOnPageClick(closeChatContextMenu);
+		
+		// Register event listeners for each name when a new chat message appears
+		registerOnChatChange(chatContextMenu);
 	},
 };
