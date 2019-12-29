@@ -78,7 +78,7 @@ function submitChat() {
 // Automated chat command helpers
 // (We've been OK'd to do these by the dev - all automation like this should receive approval from the dev)
 function whisperPlayer(playerName) {
-	enterTextIntoChat(`/whisper ${playerName} `);
+	enterTextIntoChat(`/${playerName} `);
 }
 function partyPlayer(playerName) {
 	enterTextIntoChat(`/partyinvite ${playerName}`);

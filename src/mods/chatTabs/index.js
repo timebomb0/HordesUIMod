@@ -1,5 +1,5 @@
 import * as helpers from './helpers';
-import { getState, getTempState } from '../../utils/state';
+import { getState, getTempState, saveState } from '../../utils/state';
 import { makeElement, uuid } from '../../utils/misc';
 
 // Creates DOM elements and wires them up for custom chat tabs and chat tab config
@@ -54,7 +54,7 @@ function customChatTabs() {
 		// `selectedChatTab` is a reference on `state.chatTabs`, so updating it above still updates it in the state - we want to save that
 		const selectedChatTab = state.chatTabs.find(tab => tab.id === state.selectedChatTabId);
 		selectedChatTab.name = newName;
-		save();
+		saveState();
 
 		// Close chat tab config
 		document.querySelector('.js-chat-tab-config').style.display = 'none';
@@ -93,7 +93,7 @@ function customChatTabs() {
 			filters: helpers.getCurrentChatFilters(),
 		};
 		state.chatTabs.push(chatTab);
-		save();
+		saveState();
 		helpers.addChatTab(chatTab);
 	}
 
@@ -112,7 +112,7 @@ function customChatTabs() {
 		}
 		const selectedChatTab = state.chatTabs.find(tab => tab.id === state.selectedChatTabId);
 		selectedChatTab.filters = helpers.getCurrentChatFilters();
-		save();
+		saveState();
 	});
 
 	// Select the currently selected tab in state on mod initialization

@@ -17,7 +17,8 @@ function createChatContextMenu() {
         <div class="choice" name="party">Party invite</div>
         <div class="choice" name="whisper">Whisper</div>
         <div class="choice" name="friend">Friend</div>
-        <div class="choice" name="unfriend">Unfriend</div>
+		<div class="choice" name="unfriend">Unfriend</div>
+		<div class="choice" name="copy">Copy name</div>
         <div class="choice" name="block">Block</div>
     `;
 	document.body.appendChild(
@@ -40,6 +41,9 @@ function createChatContextMenu() {
 	});
 	$chatContextMenu.querySelector('[name="unfriend"]').addEventListener('click', () => {
 		player.unfriendPlayer(tempState.chatName);
+	});
+	$chatContextMenu.querySelector('[name="copy"]').addEventListener('click', () => {
+		navigator.clipboard.writeText(tempState.chatName);
 	});
 	$chatContextMenu.querySelector('[name="block"]').addEventListener('click', () => {
 		player.blockPlayer(tempState.chatName);
@@ -71,8 +75,11 @@ function chatContextMenu() {
 			addContextMenu($name, $name.textContent);
 		},
 	);
+	// `textf0` is the VG faction, `textf1` is the BL faction - we want to support both with our whisper context menu
 	Array.from(
-		document.querySelectorAll('.textwhisper .textf1:not(.js-is-context-menu-initd)'),
+		document.querySelectorAll(
+			'.textwhisper .textf1:not(.js-is-context-menu-initd), .textwhisper .textf0:not(.js-is-context-menu-initd)',
+		),
 	).forEach($whisperName => {
 		// $whisperName's textContent is "to [name]" or "from [name]", so we cut off the first word
 		let name = $whisperName.textContent.split(' ');
@@ -108,7 +115,7 @@ export default {
 
 		// When we click anywhere on the page outside of our chat context menu, we want to close the menu
 		registerOnPageClick(closeChatContextMenu);
-		
+
 		// Register event listeners for each name when a new chat message appears
 		registerOnChatChange(chatContextMenu);
 	},

@@ -41,7 +41,7 @@ function mapControls() {
 	$addBtn.addEventListener('click', clickEvent => {
 		// Update opacity
 		state.mapOpacity += 10;
-		save();
+		saveState();
 		helpers.updateMapOpacity();
 	});
 
