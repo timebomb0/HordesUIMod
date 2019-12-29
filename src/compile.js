@@ -10,8 +10,8 @@ import { VERSION } from './utils/version.js';
 
 const SRC_FOLDER = `${process.cwd()}${sep}src`;
 const MODS_FOLDER = `${SRC_FOLDER}${sep}mods`;
-const OUTPUT_FILE = `${process.cwd()}${sep}build${sep}userscript.js`;
-
+const OUTPUT_DIR = `${process.cwd()}${sep}build`;
+const OUTPUT_FILE = `${OUTPUT_DIR}${sep}userscript.js`;
 // Fun fact: We are NOT ALLOWED TO OBFUSCATE/MINIFY our userscript on greasyfork.org
 
 console.log('Building userscript...');
@@ -56,6 +56,9 @@ async function compile() {
 			.replace('{{authors}}', authors.join(' & '))
 			.replace('{{version}}', VERSION);
 
+		if (!fs.existsSync(OUTPUT_DIR)) {
+			fs.mkdirSync(OUTPUT_DIR);
+		}
 		fs.writeFileSync(OUTPUT_FILE, userScriptStr);
 		console.log(`Built to ${OUTPUT_FILE}`);
 	} catch (e) {

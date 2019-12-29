@@ -1,5 +1,5 @@
 import * as chat from '../../utils/chat';
-import VERSION from '../../utils/version';
+import { VERSION } from '../../utils/version';
 import { loadState } from '../../utils/state';
 
 function modStart() {
