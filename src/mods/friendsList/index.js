@@ -114,10 +114,6 @@ export default {
 				playerName => !newFriendsListPlayers.includes(playerName),
 			);
 
-			console.log(newlyUnfriendedPlayers);
-			console.log(oldState.friendsList);
-			console.log(newState.friendsList);
-
 			// A new player was friended/unfriended, reload UI if it's open already
 			if (newlyFriendedPlayers.length > 0 || newlyUnfriendedPlayers.length > 0) {
 				if (document.querySelector('.js-friends-list')) {
