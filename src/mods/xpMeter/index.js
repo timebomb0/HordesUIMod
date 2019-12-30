@@ -1,7 +1,6 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 import * as helpers from './helpers';
 import { makeElement } from '../../utils/misc';
-import { stat } from 'fs';
 
 // TODO: Consider adding start button to start interval, and stop after X minutes of no EXP
 //       Or maybe watch XP bar and start it once XP bar first moves?

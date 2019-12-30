@@ -38,21 +38,21 @@ function mapControls() {
 	}
 
 	// Wire it up
-	$addBtn.addEventListener('click', clickEvent => {
+	$addBtn.addEventListener('click', () => {
 		// Update opacity
 		state.mapOpacity += 10;
 		saveState();
 		helpers.updateMapOpacity();
 	});
 
-	$minusBtn.addEventListener('click', clickEvent => {
+	$minusBtn.addEventListener('click', () => {
 		// Update opacity
 		state.mapOpacity -= 10;
 		saveState();
 		helpers.updateMapOpacity();
 	});
 
-	$resetBtn.addEventListener('click', clickEvent => {
+	$resetBtn.addEventListener('click', () => {
 		state.mapOpacity = 70;
 		state.mapWidth = '174px';
 		state.mapHeight = '174px';
