@@ -1,7 +1,7 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 
 // When the map container resizes, we want to update the canvas width/height and the state
-function onMapResize(e) {
+function onMapResize() {
 	if (!document.querySelector('.layout')) {
 		return;
 	}

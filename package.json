@@ -4,7 +4,8 @@
 	"description": "Userscript mod for hordes.io",
 	"main": "src/compile.js",
 	"scripts": {
-		"build": "node src/compile.js"
+		"build": "node src/compile.js",
+		"lint": "eslint **/*.js"
 	},
 	"type": "module",
 	"repository": {

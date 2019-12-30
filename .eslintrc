@@ -1,10 +1,16 @@
 {
-    "extends": "airbnb/hooks",
-    "parserOptions": {
-        "ecmaVersion": 2018,
-        "sourceType": "module"
-    },
-    "env": {
-        "es6": true
-    }
+	"extends": "airbnb/hooks",
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module"
+	},
+	"env": {
+		"es6": true
+	},
+	"rules": {
+		"no-unused-vars": [
+			"error",
+			{ "vars": "all", "args": "after-used", "ignoreRestSiblings": false }
+		]
+	}
 }
