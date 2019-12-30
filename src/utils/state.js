@@ -22,6 +22,7 @@ let state = {
 	openWindows: {
 		openFriendsList: false,
 		openBlockList: false,
+		openXpMeter: false,
 	},
 };
 

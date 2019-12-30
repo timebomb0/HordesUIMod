@@ -152,8 +152,13 @@ function removeFriendsList() {
 }
 
 function toggleXpMeterVisibility() {
+	const state = getState();
+
 	const xpMeterContainer = document.querySelector('.js-xpmeter');
 	xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
+
+	state.openWindows.openXpMeter = xpMeterContainer.style.display === 'none' ? false : true;
+	saveState();
 }
 
 function createXpMeter() {

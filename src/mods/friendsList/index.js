@@ -1,8 +1,11 @@
 import { makeElement } from '../../utils/misc';
 import { createFriendsList } from '../../utils/ui';
+import { getState } from '../../utils/state';
 
 // The F icon and the UI that appears when you click it
 function customFriendsList() {
+	const state = getState();
+
 	var friendsIconElement = makeElement({
 		element: 'div',
 		class: 'btn border black js-friends-list-icon',
@@ -14,6 +17,11 @@ function customFriendsList() {
 
 	// Create the friends list UI
 	document.querySelector('.js-friends-list-icon').addEventListener('click', createFriendsList);
+
+	// If it was open when the game last closed keep it open
+	if (state.openWindows.openFriendsList) {
+		createFriendsList();
+	}
 }
 
 export default {

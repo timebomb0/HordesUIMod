@@ -1,7 +1,9 @@
 import { makeElement } from '../../utils/misc';
 import { createBlockList } from '../../utils/ui';
+import { getState } from '../../utils/state';
 
 function blockedPlayerSettings() {
+	const state = getState();
 	const $settings = document.querySelector('.divide:not(.js-settings-initd)');
 	if (!$settings) {
 		return;
@@ -19,6 +21,11 @@ function blockedPlayerSettings() {
 
 	// Upon click, we display our custom settings window UI
 	document.querySelector('.js-blocked-players').addEventListener('click', createBlockList);
+
+	// If it was open when the game last closed keep it open
+	if (state.openWindows.openBlockList) {
+		createBlockList();
+	}
 }
 
 export default {

@@ -11,6 +11,11 @@ function xpMeter() {
 
 	createXpMeter();
 
+	// If it was open when the game last closed keep it open
+	if (state.openWindows.openXpMeter) {
+		toggleXpMeterVisibility();
+	}
+
 	// Wire up icon and xpmeter window
 	document.querySelector('.js-sysxp').addEventListener('click', toggleXpMeterVisibility);
 	document
