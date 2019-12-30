@@ -10,17 +10,18 @@ function handleMerchantFilterInputChange(event) {
 	$items.forEach($item => {
 		const tooltipContentPromise = getTooltipContent($item);
 		tooltipContentPromise.then(tooltipContent => {
-			let matchesAnyFilter = false;
+			let filterMatchCount = 0;
 			filters.forEach(filter => {
 				const matchesFilter = tooltipContent.textContent
 					.toLowerCase()
 					.includes(filter.toLowerCase());
 				if (matchesFilter) {
-					matchesAnyFilter = true;
+					filterMatchCount++;
 				}
 			});
 
-			if (matchesAnyFilter) {
+			const matchesAllFilters = filterMatchCount === filters.length;
+			if (matchesAllFilters) {
 				$item.parentNode.style.display = 'grid';
 			} else {
 				$item.parentNode.style.display = 'none';
