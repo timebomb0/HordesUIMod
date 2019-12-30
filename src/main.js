@@ -48,6 +48,18 @@ function initialize() {
 
 			return true;
 		},
+
+		// Triggers on `delete state[key]`
+		deleteProperty: (target, key) => {
+			// Deeply clone state before updating it, to act as previous state
+			// We clone `getState` instead of `target` because target might be a nested proxy, but we want to pass the full state
+			const prevState = deepClone(getState());
+			// Delete from state
+			delete target[key];
+			// Trigger onStateChange
+			rerunning.onStateChange.forEach(callback => callback(prevState, getState()));
+			return true;
+		},
 	};
 	initStateWithProxy(stateProxyHandler);
 
