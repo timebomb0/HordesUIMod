@@ -31,7 +31,7 @@ function blockedPlayerSettings() {
 export default {
 	name: 'Blocked Players List',
 	description: 'Allows you to view and remove blocked players from the Settings window',
-	run: ({ registerOnDomChange, registerOnStateChange }) => {
+	run: ({ registerOnDomChange }) => {
 		blockedPlayerSettings();
 
 		// If the settings window becomes visible/invisible, we want to update it
