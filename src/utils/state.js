@@ -19,6 +19,10 @@ let state = {
 		gainedXp: 0,
 		currentLvl: 0,
 	},
+	openWindows: {
+		openFriendsList: false,
+		openBlockList: false,
+	},
 };
 
 // tempState is saved only between page refreshes.
