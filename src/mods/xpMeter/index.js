@@ -109,15 +109,20 @@ function xpMeter() {
 		const nextLvlXp = helpers.getNextLevelXp();
 		const currentLvl = helpers.getCurrentCharacterLvl();
 
+		// Only update and save state if it has changed
 		const gainedXp = currentXp - state.xpMeterState.currentXp;
 		const xpGains = currentXp - state.xpMeterState.currentXp;
 		const averageXp =
-			state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
+			state.xpMeterState.xpGains.length > 0
+				? state.xpMeterState.xpGains.reduce((a, b) => a + b, 0) /
+				  state.xpMeterState.xpGains.length
+				: 0;
+
+		// Our algorithms and session time depend on an xpGain being pushed every second, even if it is 0
+		state.xpMeterState.xpGains.push(xpGains); // array of xp deltas every second
 		if (gainedXp !== 0) state.xpMeterState.gainedXp += gainedXp;
-		if (xpGains !== 0) state.xpMeterState.xpGains.push(xpGains); // array of xp deltas every second
 		if (currentXp !== state.xpMeterState.currentXp) state.xpMeterState.currentXp = currentXp;
 		if (averageXp !== state.xpMeterState.averageXp) state.xpMeterState.averageXp = averageXp;
-
 		saveState();
 
 		if (document.querySelector('.js-xpmeter')) {

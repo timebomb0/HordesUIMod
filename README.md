@@ -49,7 +49,7 @@ Functions in `index.js` should all be called from the `run` method. Any other me
 If your mod needs to make changes (call functions) whenever part of the game changes, you can register these function calls inside of your run method as follows:
 
 ```js
-run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick, registerOnStateChange }): {
+run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick }): {
     // Whenever the game DOM changes
     // Technically: MutationObserver running whenever .layout changes
     registerOnDomChange(functionCallbackHere);
@@ -61,22 +61,6 @@ run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick, register
     // Whenever user clicks anywhere on page
     // Technically: `click` Event listener running on document.body
     registerOnPageClick(functionCallbackHere);
-
-    // Whenever state changes (saved state, not tempState)
-    // See example usage callback below - passes oldState and newState to callback
-    // Note that oldState is deeply cloned from state - none of its objects or arrays are the same, even if they contain the same values.
-    registerOnStateChange((oldState, newState) => {
-        const oldBlockListPlayers = Object.keys(oldState.blockList);
-        // Find players in new state that aren't in old state
-        const newlyBlockedPlayers = Object.keys(newState.blockList).filter(
-            playerName => !oldBlockListPlayers.includes(playerName),
-        );
-
-        if (newlyBlockedPlayers.length > 0) {
-            console.log('Newly blocked player:', blockListDifference);
-        }
-    });
-
 }
 ```
 
