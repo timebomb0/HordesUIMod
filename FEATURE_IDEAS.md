@@ -9,6 +9,7 @@
 -   Move[Drag] player/target health bars, party frames
 -   Tooltip on buffs to show name+basic effect [cant get level probably]
 -   Proper draggable + close button for custom friends list, custom block list, and maybe chat tab config windows
+-   Track gold per hour, must keep inventory open though [make sure user is aware]
 -   (MAYBE, Confirm if dev is ok w it) Ctrl clicking item in inventory when Merchant is open to paste item name into search field, and search
 -   (MAYBE, confirm if dev is ok w it) Ctrl clicking item to copy details so user can paste in chat
 -   (MAYBE) Improved healer party frames

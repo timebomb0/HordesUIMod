@@ -11,6 +11,7 @@ import resizableChat from './resizableChat';
 import resizableMap from './resizableMap';
 import selectedWindowIsTop from './selectedWindowIsTop';
 import xpMeter from './xpMeter';
+import merchantFilter from './merchantFilter';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -26,4 +27,5 @@ export default [
 	draggableUI,
 	selectedWindowIsTop,
 	xpMeter,
+	merchantFilter,
 ];

@@ -1,15 +1,11 @@
 // Nicer impl to create elements in one method call
 function makeElement(args) {
 	const $node = document.createElement(args.element);
-	if (args.class) {
-		$node.className = args.class;
-	}
-	if (args.content) {
-		$node.innerHTML = args.content;
-	}
-	if (args.src) {
-		$node.src = args.src;
-	}
+	if (args.class) $node.className = args.class;
+	if (args.content) $node.innerHTML = args.content;
+	if (args.src) $node.src = args.src;
+	if (args.type) $node.type = args.type;
+	if (args.placeholder) $node.placeholder = args.placeholder;
 	return $node;
 }
 

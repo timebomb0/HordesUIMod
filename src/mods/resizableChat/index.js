@@ -21,9 +21,12 @@ function resizableChat() {
 		const chatHeightStr = window
 			.getComputedStyle($chatContainer, null)
 			.getPropertyValue('height');
-		state.chatWidth = chatWidthStr;
-		state.chatHeight = chatHeightStr;
-		saveState();
+
+		const hasWidthChanged = state.chatWidth !== chatWidthStr;
+		const hasHeightChanged = state.chatHeight !== chatHeightStr;
+		if (hasWidthChanged) state.chatWidth = chatWidthStr;
+		if (hasHeightChanged) state.chatHeight = chatHeightStr;
+		if (hasWidthChanged || hasHeightChanged) saveState();
 	});
 	resizeObserverChat.observe($chatContainer);
 }

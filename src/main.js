@@ -1,8 +1,5 @@
 import mods from './mods';
-import { initStateWithProxy, getState } from './utils/state';
-import { deepClone } from './utils/misc';
 
-// Add new DOM, load our stored state, wire it up, then continuously rerun specific methods whenever UI changes
 function initialize() {
 	// If the Hordes.io tab isn't active for long enough, it reloads the entire page, clearing this mod
 	// We check for that and reinitialize the mod if that happens
@@ -21,59 +18,17 @@ function initialize() {
 
 		// `click` Event listener running on document.body
 		onPageClick: [],
-
-		// Whenever the state object changes
-		onStateChange: [],
 	};
-
-	// Initialize state, deeply proxying it so we can hook into it, and then loading it from localStorage
-	const stateProxyHandler = {
-		// Deeply nest our proxy into every object/array in the state
-		get: (target, key) => {
-			if (typeof target[key] === 'object' && target[key] !== null) {
-				return new Proxy(target[key], stateProxyHandler);
-			} else {
-				return target[key];
-			}
-		},
-
-		set: (target, key, value) => {
-			// Deeply clone state before updating it, to act as previous state
-			// We clone `getState` instead of `target` because target might be a nested proxy, but we want to pass the full state
-			const prevState = deepClone(getState());
-			// Update state
-			target[key] = value;
-			// Trigger onStateChange
-			rerunning.onStateChange.forEach(callback => callback(prevState, getState()));
-
-			return true;
-		},
-
-		// Triggers on `delete state[key]`
-		deleteProperty: (target, key) => {
-			// Deeply clone state before updating it, to act as previous state
-			// We clone `getState` instead of `target` because target might be a nested proxy, but we want to pass the full state
-			const prevState = deepClone(getState());
-			// Delete from state
-			delete target[key];
-			// Trigger onStateChange
-			rerunning.onStateChange.forEach(callback => callback(prevState, getState()));
-			return true;
-		},
-	};
-	initStateWithProxy(stateProxyHandler);
 
 	// Run all our mods
 	const registerOnDomChange = callback => rerunning.onDomChange.push(callback);
 	const registerOnChatChange = callback => rerunning.onChatChange.push(callback);
 	const registerOnPageClick = callback => rerunning.onPageClick.push(callback);
-	const registerOnStateChange = callback => rerunning.onStateChange.push(callback);
 	mods.forEach(mod => {
 		mod.run({
 			registerOnDomChange,
 			registerOnChatChange,
 			registerOnPageClick,
-			registerOnStateChange,
 		});
 	});
 
