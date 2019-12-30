@@ -1,0 +1,10 @@
+/* Mirror styles of other merchant inputs */
+.uidom-merchant-input {
+	margin: 4px 0;
+	align-self: center;
+}
+
+/* Add 225px column for new filters input */
+.uidom-merchant-with-filters .search {
+	grid-template-columns: 120px auto 50px auto 50px 225px 1fr auto auto;
+}

@@ -30,8 +30,6 @@ const tempState = {
 	xpMeterInterval: null, // tracks the interval for fetching xp data
 };
 
-// Note: Calling this before initStateWithProxy will retrieve the old, wrong state.
-// We proxy `state when loading, replacing `state` in this file.
 function getState() {
 	return state;
 }
@@ -58,10 +56,4 @@ function loadState() {
 	}
 }
 
-// Should be called once per initialize. Loads state and proxies it and every object in it with the passed proxy.
-function initStateWithProxy(proxyHandler) {
-	state = new Proxy(state, proxyHandler);
-	loadState();
-}
-
-export { getState, getTempState, saveState, loadState, initStateWithProxy };
+export { getState, getTempState, saveState, loadState };
