@@ -1,5 +1,5 @@
 import * as chat from '../../utils/chat';
-import { getState, saveState } from '../../utils/state';
+import { getState, getTempState, saveState } from '../../utils/state';
 import { makeElement, uuid } from '../../utils/misc';
 
 const DEFAULT_CHAT_TAB_NAME = 'Untitled';

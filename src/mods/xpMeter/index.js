@@ -1,7 +1,10 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 import * as helpers from './helpers';
 import { makeElement } from '../../utils/misc';
+import { stat } from 'fs';
 
+// TODO: Consider adding start button to start interval, and stop after X minutes of no EXP
+//       Or maybe watch XP bar and start it once XP bar first moves?
 // Adds XP Meter DOM icon and window, starts continuous interval to get current xp over time
 function xpMeter() {
 	const state = getState();
@@ -84,8 +87,11 @@ function xpMeter() {
 		.querySelector('.js-xpmeter-reset-button')
 		.addEventListener('click', helpers.resetXpMeterState);
 
-	state.xpMeterState.currentXp = helpers.getCurrentXp();
-	state.xpMeterState.currentLvl = helpers.getCurrentCharacterLvl();
+	const currentXp = helpers.getCurrentXp();
+	const currentCharLvl = helpers.getCurrentCharacterLvl();
+	if (currentXp !== state.xpMeterState.currentXp) state.xpMeterState.currentXp = currentXp;
+	if (currentCharLvl !== state.xpMeterState.currentLvl)
+		state.xpMeterState.currentLvl = currentCharLvl;
 	saveState();
 
 	if (tempState.xpMeterInterval) clearInterval(tempState.xpMeterInterval);
@@ -103,11 +109,15 @@ function xpMeter() {
 		const nextLvlXp = helpers.getNextLevelXp();
 		const currentLvl = helpers.getCurrentCharacterLvl();
 
-		state.xpMeterState.gainedXp += currentXp - state.xpMeterState.currentXp;
-		state.xpMeterState.xpGains.push(currentXp - state.xpMeterState.currentXp); // array of xp deltas every second
-		state.xpMeterState.currentXp = currentXp;
-		state.xpMeterState.averageXp =
+		const gainedXp = currentXp - state.xpMeterState.currentXp;
+		const xpGains = currentXp - state.xpMeterState.currentXp;
+		const averageXp =
 			state.xpMeterState.xpGains.reduce((a, b) => a + b) / state.xpMeterState.xpGains.length;
+		if (gainedXp !== 0) state.xpMeterState.gainedXp += gainedXp;
+		if (xpGains !== 0) state.xpMeterState.xpGains.push(xpGains); // array of xp deltas every second
+		if (currentXp !== state.xpMeterState.currentXp) state.xpMeterState.currentXp = currentXp;
+		if (averageXp !== state.xpMeterState.averageXp) state.xpMeterState.averageXp = averageXp;
+
 		saveState();
 
 		if (document.querySelector('.js-xpmeter')) {

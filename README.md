@@ -36,11 +36,11 @@ Your mod folder will also contain an `index.js` file that _must_ export an objec
 
 ```js
 {
-    name: 'Your mod name',
-    description: 'Brief description of your mod',
-    run: () {
-        callsToYourModFunctionHere();
-    }
+	name: 'Your mod name',
+	description: 'Brief description of your mod',
+	run: () {
+		callsToYourModFunctionHere();
+	}
 }
 ```
 
@@ -49,20 +49,35 @@ Functions in `index.js` should all be called from the `run` method. Any other me
 If your mod needs to make changes (call functions) whenever part of the game changes, you can register these function calls inside of your run method as follows:
 
 ```js
-    run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick }): {
-        // Whenever the game DOM changes
-        // Technically: MutationObserver running whenever .layout changes
-		registerOnDomChange(functionCallbackHere);
+run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick, registerOnStateChange }): {
+    // Whenever the game DOM changes
+    // Technically: MutationObserver running whenever .layout changes
+    registerOnDomChange(functionCallbackHere);
 
-        // Whenever something in chat changes
-		// Technically: Mutation observer running whenever #chat changes
-		registerOnChatChange(functionCallbackHere);
+    // Whenever something in chat changes
+    // Technically: Mutation observer running whenever #chat changes
+    registerOnChatChange(functionCallbackHere);
 
-        // Whenever user clicks anywhere on page
-		// Technically: `click` Event listener running on document.body
-	    registerOnPageClick(functionCallbackHere);
+    // Whenever user clicks anywhere on page
+    // Technically: `click` Event listener running on document.body
+    registerOnPageClick(functionCallbackHere);
 
-    }
+    // Whenever state changes (saved state, not tempState)
+    // See example usage callback below - passes oldState and newState to callback
+    // Note that oldState is deeply cloned from state - none of its objects or arrays are the same, even if they contain the same values.
+    registerOnStateChange((oldState, newState) => {
+        const oldBlockListPlayers = Object.keys(oldState.blockList);
+        // Find players in new state that aren't in old state
+        const newlyBlockedPlayers = Object.keys(newState.blockList).filter(
+            playerName => !oldBlockListPlayers.includes(playerName),
+        );
+
+        if (newlyBlockedPlayers.length > 0) {
+            console.log('Newly blocked player:', blockListDifference);
+        }
+    });
+
+}
 ```
 
 When creating your mod, feel free to browse and use the various helper methods in `src/utils`. These utils contain helpful functions that are shared or are expected to be shared between multiple mods.
@@ -71,7 +86,7 @@ You will also need to update `src/mods/index.js`, adding your mod to the end of 
 
 # Other places contributors will need to touch
 
-Increment `VERSION` in `src/version.js` and `"version"` in `package.json`.
+Increment `VERSION` in `src/version.js`.
 Generally, bugfixes/small improvements to existing features should increment the third number `1.0.1`.
 New features should increment the second number `1.1.1`.
 Don't worry about incrementing the first number.
