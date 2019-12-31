@@ -5,7 +5,8 @@ import { handleMerchantFilterInputChange, deleteMerchantObserver } from './helpe
 
 function addMerchantFilter() {
 	const $merchant = getWindow('Merchant');
-	if (!$merchant) {
+	// If merchant is closed or merchant filter input is already added, we dont need to do anything
+	if (!$merchant || $merchant.querySelector('.js-merchant-filter-input')) {
 		return;
 	}
 
