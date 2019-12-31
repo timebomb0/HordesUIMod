@@ -231,6 +231,28 @@ function createXpMeter() {
 	$layoutContainer.appendChild($xpMeterElement.firstChild);
 }
 
+// state.openWindows should always only be managed by this file
+// Sometimes we want to track when a UI window we don't control is opened/closed
+// We use these methods to help facilitate that
+// To use these methods correctly, you need to track when the window opens _and_ when it closes
+// If you don't _need_ to do both those things, then don't do that, and don't use these methods
+function setWindowOpen(windowName) {
+	const state = getState();
+
+	state.openWindows[windowName] = true;
+}
+
+function setWindowClosed(windowName) {
+	const state = getState();
+
+	state.openWindows[windowName] = false;
+}
+
+function isWindowOpen(windowName) {
+	const state = getState();
+	return state.openWindows[windowName];
+}
+
 export {
 	createBlockList,
 	removeBlockList,
@@ -238,4 +260,7 @@ export {
 	removeFriendsList,
 	toggleXpMeterVisibility,
 	createXpMeter,
+	setWindowOpen,
+	setWindowClosed,
+	isWindowOpen,
 };
