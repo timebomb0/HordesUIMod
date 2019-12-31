@@ -11,6 +11,23 @@
 		"no-unused-vars": [
 			"error",
 			{ "vars": "all", "args": "after-used", "ignoreRestSiblings": false }
-		]
+		],
+		"no-undef": ["error"]
+	},
+	"globals": {
+		"document": "readonly",
+		"ResizeObserver": "readonly",
+		"MutationObserver": "readonly",
+		"clearInterval": "readonly",
+		"setInterval": "readonly",
+		"setTimeout": "readonly",
+		"clearTimeout": "readonly",
+		"localStorage": "readonly",
+		"KeyboardEvent": "readonly",
+		"Event": "readonly",
+		"window": "readonly",
+		"console": "readonly",
+		"process": "readonly",
+		"navigator": "readonly"
 	}
 }

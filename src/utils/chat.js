@@ -103,7 +103,11 @@ function addChatMessage(text) {
 		class: 'line svelte-1vrlsr3',
 		content: newMessageHTML,
 	});
-	document.querySelector('#chat').appendChild(element);
+	const $chat = document.querySelector('#chat');
+	$chat.appendChild(element);
+
+	// Scroll to bottom of chat
+	$chat.scrollTop = $chat.scrollHeight;
 }
 
 export { setGMChatVisibility, filterAllChat, whisperPlayer, partyPlayer, addChatMessage };

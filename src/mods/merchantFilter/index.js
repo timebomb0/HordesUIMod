@@ -4,9 +4,10 @@ import { handleMerchantFilterInputChange } from './helpers';
 
 function addMerchantFilter() {
 	const $merchant = getWindow('Merchant');
-	if (!$merchant || $merchant.classList.contains('js-merchant-initd')) {
+	if (!$merchant) {
 		return;
 	}
+
 	$merchant.classList.add('js-merchant-initd');
 	$merchant.classList.add('uidom-merchant-with-filters');
 
@@ -25,12 +26,27 @@ function addMerchantFilter() {
 		.addEventListener('keyup', debounce(handleMerchantFilterInputChange, 250));
 }
 
+function refreshMerchantFilter() {
+	const $merchant = document.querySelector('.js-merchant-initd');
+	if (!$merchant) {
+		return;
+	}
+	if (!$merchant.querySelector('.js-merchant-filter-input').value) {
+		return;
+	}
+
+	// Refresh filters after loading items from merchant
+	setTimeout(handleMerchantFilterInputChange, 250);
+}
+
 export default {
 	name: 'Merchant filter',
 	description:
 		'Allows you to specify filters, or search text, for items displayed in the merchant',
-	run: ({ registerOnDomChange }) => {
+	run: ({ registerOnDomChange, registerOnLeftClick }) => {
 		addMerchantFilter();
 		registerOnDomChange(addMerchantFilter);
+		const debouncedRefreshMerchantFilter = debounce(refreshMerchantFilter, 250);
+		registerOnLeftClick(debouncedRefreshMerchantFilter);
 	},
 };

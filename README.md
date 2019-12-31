@@ -49,7 +49,7 @@ Functions in `index.js` should all be called from the `run` method. Any other me
 If your mod needs to make changes (call functions) whenever part of the game changes, you can register these function calls inside of your run method as follows:
 
 ```js
-run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick }): {
+run: ({ registerOnDomChange, registerOnChatChange, registerOnLeftClick, registerOnRightClick }): {
     // Whenever the game DOM changes
     // Technically: MutationObserver running whenever .layout changes
     registerOnDomChange(functionCallbackHere);
@@ -58,9 +58,13 @@ run: ({ registerOnDomChange, registerOnChatChange, registerOnPageClick }): {
     // Technically: Mutation observer running whenever #chat changes
     registerOnChatChange(functionCallbackHere);
 
-    // Whenever user clicks anywhere on page
+    // Whenever user left clicks anywhere on page
     // Technically: `click` Event listener running on document.body
-    registerOnPageClick(functionCallbackHere);
+    registerOnLeftClick(functionCallbackHere);
+
+    // Whenever user right clicks anywhere on page
+    // Technically: `contextmenu` Event listener running on document.body
+    registerOnRightClick(functionCallbackHere);
 }
 ```
 
