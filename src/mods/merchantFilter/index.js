@@ -1,6 +1,7 @@
 import { getWindow } from '../../utils/game';
 import { makeElement, debounce } from '../../utils/misc';
-import { handleMerchantFilterInputChange } from './helpers';
+import { isWindowOpen, setWindowOpen, setWindowClosed } from '../../utils/ui';
+import { handleMerchantFilterInputChange, deleteMerchantObserver } from './helpers';
 
 function addMerchantFilter() {
 	const $merchant = getWindow('Merchant');
@@ -10,6 +11,7 @@ function addMerchantFilter() {
 
 	$merchant.classList.add('js-merchant-initd');
 	$merchant.classList.add('uidom-merchant-with-filters');
+	setWindowOpen('merchant');
 
 	const $lvMaximumField = $merchant.querySelectorAll('input[type="number"]')[1];
 
@@ -26,27 +28,26 @@ function addMerchantFilter() {
 		.addEventListener('keyup', debounce(handleMerchantFilterInputChange, 250));
 }
 
-function refreshMerchantFilter() {
-	const $merchant = document.querySelector('.js-merchant-initd');
-	if (!$merchant) {
-		return;
-	}
-	if (!$merchant.querySelector('.js-merchant-filter-input').value) {
-		return;
+function cleanupMerchantObserver() {
+	if (isWindowOpen('merchant')) {
+		const $merchant = document.querySelector('.js-merchant-initd');
+		if ($merchant) return;
 	}
 
-	// Refresh filters after loading items from merchant
-	setTimeout(handleMerchantFilterInputChange, 250);
+	// Window was set to open but is actually closed, let's clean up...
+	setWindowClosed('merchant');
+	deleteMerchantObserver();
 }
 
 export default {
 	name: 'Merchant filter',
 	description:
 		'Allows you to specify filters, or search text, for items displayed in the merchant',
-	run: ({ registerOnDomChange, registerOnLeftClick }) => {
+	run: ({ registerOnDomChange }) => {
 		addMerchantFilter();
 		registerOnDomChange(addMerchantFilter);
-		const debouncedRefreshMerchantFilter = debounce(refreshMerchantFilter, 250);
-		registerOnLeftClick(debouncedRefreshMerchantFilter);
+		registerOnDomChange(() => {
+			cleanupMerchantObserver();
+		});
 	},
 };
