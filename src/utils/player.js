@@ -1,5 +1,6 @@
 import { getState, saveState } from './state';
 import * as chat from './chat';
+import * as ui from './ui';
 
 function friendPlayer(playerName) {
 	const state = getState();
@@ -11,6 +12,12 @@ function friendPlayer(playerName) {
 	state.friendsList[playerName] = true;
 	chat.addChatMessage(`${playerName} has been added to your friends list.`);
 	saveState();
+
+	// If UI is open remake it with new changes
+	if (state.openWindows.openFriendsList) {
+		ui.removeFriendsList();
+		ui.createFriendsList();
+	}
 }
 
 function unfriendPlayer(playerName) {
@@ -24,6 +31,12 @@ function unfriendPlayer(playerName) {
 	delete state.friendNotes[playerName];
 	chat.addChatMessage(`${playerName} is no longer on your friends list.`);
 	saveState();
+
+	// If UI is open remake it with new changes
+	if (state.openWindows.openFriendsList) {
+		ui.removeFriendsList();
+		ui.createFriendsList();
+	}
 }
 
 // Adds player to block list, to be filtered out of chat
@@ -38,6 +51,12 @@ function blockPlayer(playerName) {
 	chat.filterAllChat();
 	chat.addChatMessage(`${playerName} has been blocked.`);
 	saveState();
+
+	// If UI is open remake it with new changes
+	if (state.openWindows.openBlockList) {
+		ui.removeBlockList();
+		ui.createBlockList();
+	}
 }
 
 // Removes player from block list and makes their messages visible again

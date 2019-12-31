@@ -33,12 +33,6 @@ function resetXpMeterState() {
 	document.querySelector('.js-xp-time').textContent = '-:-:-';
 }
 
-// toggle the xp meter
-function toggleXpMeterVisibility() {
-	const xpMeterContainer = document.querySelector('.js-xpmeter');
-	xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
-}
-
 function msToString(ms) {
 	const pad = value => (value < 10 ? `0${value}` : value);
 	const hours = pad(Math.floor((ms / (1000 * 60 * 60)) % 60));
@@ -47,11 +41,4 @@ function msToString(ms) {
 	return `${hours}:${minutes}:${seconds}`;
 }
 
-export {
-	getCurrentCharacterLvl,
-	getCurrentXp,
-	getNextLevelXp,
-	resetXpMeterState,
-	toggleXpMeterVisibility,
-	msToString,
-};
+export { getCurrentCharacterLvl, getCurrentXp, getNextLevelXp, resetXpMeterState, msToString };

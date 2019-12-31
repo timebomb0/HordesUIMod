@@ -1,10 +1,9 @@
-import { getState } from '../../utils/state';
 import { makeElement } from '../../utils/misc';
-import * as player from '../../utils/player';
+import { createBlockList } from '../../utils/ui';
+import { getState } from '../../utils/state';
 
 function blockedPlayerSettings() {
 	const state = getState();
-
 	const $settings = document.querySelector('.divide:not(.js-settings-initd)');
 	if (!$settings) {
 		return;
@@ -21,51 +20,12 @@ function blockedPlayerSettings() {
 	);
 
 	// Upon click, we display our custom settings window UI
-	document.querySelector('.js-blocked-players').addEventListener('click', () => {
-		let blockedPlayersHTML = '';
-		Object.keys(state.blockList)
-			.sort()
-			.forEach(blockedName => {
-				blockedPlayersHTML += `
-                <div data-player-name="${blockedName}">${blockedName}</div>
-                <div class="btn orange js-unblock-player" data-player-name="${blockedName}">Unblock player</div>
-            `;
-			});
+	document.querySelector('.js-blocked-players').addEventListener('click', createBlockList);
 
-		const customSettingsHTML = `
-            <h3 class="textprimary">Blocked players</h3>
-            <div class="settings uimod-settings">${blockedPlayersHTML}</div>
-            <p></p>
-            <div class="btn purp js-close-custom-settings">Close</div>
-        `;
-
-		const $customSettings = makeElement({
-			element: 'div',
-			class: 'menu panel-black js-custom-settings uimod-custom-window',
-			content: customSettingsHTML,
-		});
-		document.body.appendChild($customSettings);
-
-		// Wire up all the unblock buttons
-		Array.from(document.querySelectorAll('.js-unblock-player')).forEach($button => {
-			$button.addEventListener('click', clickEvent => {
-				const name = clickEvent.target.getAttribute('data-player-name');
-				player.unblockPlayer(name);
-
-				// Remove the blocked player from the list
-				Array.from(
-					document.querySelectorAll(`.js-custom-settings [data-player-name="${name}"]`),
-				).forEach($element => {
-					$element.parentNode.removeChild($element);
-				});
-			});
-		});
-		// And the close button for our custom UI
-		document.querySelector('.js-close-custom-settings').addEventListener('click', () => {
-			const $customSettingsWindow = document.querySelector('.js-custom-settings');
-			$customSettingsWindow.parentNode.removeChild($customSettingsWindow);
-		});
-	});
+	// If it was open when the game last closed keep it open
+	if (state.openWindows.openBlockList) {
+		createBlockList();
+	}
 }
 
 export default {
