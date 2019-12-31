@@ -26,7 +26,7 @@ function dragElement($draggedElement, $dragTrigger) {
 	document.addEventListener(
 		'mousemove',
 		function(e) {
-			event.preventDefault();
+			e.preventDefault();
 			if (isDown) {
 				$draggedElement.style.left = e.clientX + offset[0] + 'px';
 				$draggedElement.style.top = e.clientY + offset[1] + 'px';

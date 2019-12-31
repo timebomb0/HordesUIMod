@@ -17,18 +17,23 @@ function initialize() {
 		onChatChange: [],
 
 		// `click` Event listener running on document.body
-		onPageClick: [],
+		onLeftClick: [],
+
+		// `contextmenu` Event listener running on document.body
+		onRightClick: [],
 	};
 
 	// Run all our mods
 	const registerOnDomChange = callback => rerunning.onDomChange.push(callback);
 	const registerOnChatChange = callback => rerunning.onChatChange.push(callback);
-	const registerOnPageClick = callback => rerunning.onPageClick.push(callback);
+	const registerOnLeftClick = callback => rerunning.onLeftClick.push(callback);
+	const registerOnRightClick = callback => rerunning.onRightClick.push(callback);
 	mods.forEach(mod => {
 		mod.run({
 			registerOnDomChange,
 			registerOnChatChange,
-			registerOnPageClick,
+			registerOnLeftClick,
+			registerOnRightClick,
 		});
 	});
 
@@ -57,8 +62,11 @@ function initialize() {
 	if (!document.body.classList.contains('js-uimod-initd')) {
 		document.body.classList.add('js-uimod-initd');
 
-		rerunning.onPageClick.forEach(callback =>
+		rerunning.onLeftClick.forEach(callback =>
 			document.body.addEventListener('click', callback),
+		);
+		rerunning.onRightClick.forEach(callback =>
+			document.body.addEventListener('contextmenu', callback),
 		);
 	}
 }

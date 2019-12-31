@@ -23,14 +23,14 @@ function resizableMap() {
 	if (state.mapWidth && state.mapHeight) {
 		$map.style.width = state.mapWidth;
 		$map.style.height = state.mapHeight;
-		helpers.onMapResize(); // Update canvas size on initial load of saved map size
+		helpers.mapResizeHandler(); // Update canvas size on initial load of saved map size
 	}
 
 	// On resize of map, resize canvas to match
 	// Debouncing allows map to be visible while resizing
-	const debouncedMapResize = debounce(helpers.onMapResize, 1);
+	const debouncedMapResize = debounce(helpers.mapResizeHandler, 1);
 	const resizeObserverMap = new ResizeObserver(debouncedMapResize);
-	helpers.onMapResize();
+	helpers.mapResizeHandler();
 	resizeObserverMap.observe($map);
 
 	// We debounce the canvas resize, so it doesn't resize every single

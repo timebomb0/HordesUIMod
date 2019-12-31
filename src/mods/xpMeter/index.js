@@ -43,6 +43,11 @@ function xpMeter() {
 			return;
 		}
 
+		// This _shouldn't_ happen, but in case it does, reset xp meter state instead of throwing error
+		if (!Array.isArray(state.xpMeterState.xpGains)) {
+			helpers.resetXpMeterState();
+		}
+
 		const currentXp = helpers.getCurrentXp();
 		const nextLvlXp = helpers.getNextLevelXp();
 		const currentLvl = helpers.getCurrentCharacterLvl();

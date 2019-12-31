@@ -33,6 +33,11 @@ const tempState = {
 	lastMapWidth: 0,
 	lastMapHeight: 0,
 	xpMeterInterval: null, // tracks the interval for fetching xp data
+	keyModifiers: {
+		shift: false,
+		control: false,
+		alt: false,
+	}, // set by _keyModifiers mod
 };
 
 function getState() {
