@@ -1,7 +1,7 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 
 // When the map container resizes, we want to update the canvas width/height and the state
-function onMapResize() {
+function mapResizeHandler() {
 	if (!document.querySelector('.layout')) {
 		return;
 	}
@@ -12,10 +12,13 @@ function onMapResize() {
 	const $canvas = $map.querySelector('canvas');
 
 	// Get real values of map height/width, excluding padding/margin/etc
+	// We round the values in this file to prevent unnecessary decimal points in our map or canvas sizes
+	// For some people these decimal points cause the map to constantly resize, making it pretty unusable.
+	// Rounding the numbers fixes this.
 	const mapWidthStr = window.getComputedStyle($map, null).getPropertyValue('width');
 	const mapHeightStr = window.getComputedStyle($map, null).getPropertyValue('height');
-	const mapWidth = Number(mapWidthStr.slice(0, -2));
-	const mapHeight = Number(mapHeightStr.slice(0, -2));
+	const mapWidth = Math.round(Number(mapWidthStr.slice(0, -2)));
+	const mapHeight = Math.round(Number(mapHeightStr.slice(0, -2)));
 
 	// If height/width are 0 or unset, don't resize canvas
 	if (!mapWidth || !mapHeight) {
@@ -63,21 +66,23 @@ function triggerMapResize() {
 	// Get real values of map height/width, excluding padding/margin/etc
 	const mapWidthStr = window.getComputedStyle($map, null).getPropertyValue('width');
 	const mapHeightStr = window.getComputedStyle($map, null).getPropertyValue('height');
-	const mapWidth = Number(mapWidthStr.slice(0, -2));
-	const mapHeight = Number(mapHeightStr.slice(0, -2));
+	const mapWidth = Math.round(Number(mapWidthStr.slice(0, -2)));
+	const mapHeight = Math.round(Number(mapHeightStr.slice(0, -2)));
+	const canvasWidth = Math.round($canvas.width);
+	const canvasHeight = Math.round($canvas.height);
 
 	// If height/width are 0 or unset, we don't care about resizing yet
 	if (!mapWidth || !mapHeight) {
 		return;
 	}
 
-	if ($canvas.width !== mapWidth) {
-		$map.style.width = `${$canvas.width}px`;
+	if (canvasWidth !== mapWidth) {
+		$map.style.width = `${canvasWidth}px`;
 	}
 
-	if ($canvas.height !== mapHeight) {
-		$map.style.height = `${$canvas.height}px`;
+	if (canvasHeight !== mapHeight) {
+		$map.style.height = `${canvasHeight}px`;
 	}
 }
 
-export { onMapResize, triggerMapResize };
+export { mapResizeHandler, triggerMapResize };
