@@ -34,6 +34,10 @@ async function itemStatsCopy(clickEvent) {
 	// Get the texts we want from the tooltip
 	const getDetailedTooltips = true;
 	const $tooltip = await getTooltipContent($bagSlot, getDetailedTooltips);
+	if (!$tooltip) {
+		// This _shouldn't_ happen, but very occasionally there is a (likely timing-related) problem getting the tooltip
+		return;
+	}
 
 	// We get the detailed tooltip, which may have a second comparison tooltip. Remove the comparison tooltip if we have it.
 	const $comparisonTooltip = $tooltip.querySelector('.slotdescription');
@@ -69,7 +73,7 @@ async function itemStatsCopy(clickEvent) {
 	// Grab the stats we care about, i.e. not part of the requirements or item type
 	const $stats = Array.from(
 		$tooltip.querySelectorAll(`
-				.container > .textpurple,
+				.container > .textpurp,
 				.container > .textblue,
 				.container > .textgreen:not(.slottitle):not(.requirements),
 				.container > .textwhite:not(.type)
