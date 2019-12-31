@@ -1,7 +1,8 @@
 import { BREAKING_VERSION } from './version';
+import { deepClone } from './misc';
 const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
 
-let state = {
+const stateTemplate = {
 	breakingVersion: BREAKING_VERSION,
 	chat: {
 		GM: true,
@@ -20,11 +21,14 @@ let state = {
 		currentLvl: 0,
 	},
 	openWindows: {
-		openFriendsList: false,
-		openBlockList: false,
-		openXpMeter: false,
+		friendsList: false,
+		blockList: false,
+		xpMeter: false,
+		merchant: false,
 	},
 };
+
+let state = deepClone(stateTemplate);
 
 // tempState is saved only between page refreshes.
 const tempState = {
@@ -63,7 +67,18 @@ function loadState() {
 		for (let [key, value] of Object.entries(storedState)) {
 			state[key] = value;
 		}
+		cleanState();
 	}
+}
+
+// Remove keys when they're meant to be strictly tracked
+function cleanState() {
+	// Currently only cleaning openWindows
+	Object.keys(state.openWindows).forEach(window => {
+		if (stateTemplate.openWindows[window] == undefined) {
+			delete state.openWindows[window];
+		}
+	});
 }
 
 export { getState, getTempState, saveState, loadState };
