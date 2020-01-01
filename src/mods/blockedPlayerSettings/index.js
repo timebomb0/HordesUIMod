@@ -1,5 +1,5 @@
 import { makeElement } from '../../utils/misc';
-import { createBlockList, isWindowOpen, windowNames } from '../../utils/ui';
+import { createBlockList, isWindowOpen, WindowNames } from '../../utils/ui';
 
 function blockedPlayerSettings() {
 	const $settings = document.querySelector('.divide:not(.js-settings-initd)');
@@ -21,7 +21,7 @@ function blockedPlayerSettings() {
 	document.querySelector('.js-blocked-players').addEventListener('click', createBlockList);
 
 	// If it was open when the game last closed keep it open
-	if (isWindowOpen(windowNames.blockList)) {
+	if (isWindowOpen(WindowNames.blockList)) {
 		createBlockList();
 	}
 }

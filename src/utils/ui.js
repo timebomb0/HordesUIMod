@@ -2,7 +2,7 @@ import { getState, saveState } from './state';
 import { makeElement } from './misc';
 import * as player from './player';
 
-let windowNames = {
+const WindowNames = {
 	friendsList: 'friendsList',
 	blockList: 'blockList',
 	xpMeter: 'xpMeter',
@@ -36,7 +36,7 @@ function createBlockList() {
 	});
 	document.body.appendChild($customSettings);
 
-	setWindowOpen(windowNames.blockList);
+	setWindowOpen(WindowNames.blockList);
 
 	// Wire up all the unblock buttons
 	Array.from(document.querySelectorAll('.js-unblock-player')).forEach($button => {
@@ -60,7 +60,7 @@ function removeBlockList() {
 	const $customSettingsWindow = document.querySelector('.js-blocked-list');
 	$customSettingsWindow.parentNode.removeChild($customSettingsWindow);
 
-	setWindowClosed(windowNames.blockList);
+	setWindowClosed(WindowNames.blockList);
 }
 
 function createFriendsList() {
@@ -98,7 +98,7 @@ function createFriendsList() {
 	});
 	document.body.appendChild($customFriendsList);
 
-	setWindowOpen(windowNames.friendsList);
+	setWindowOpen(WindowNames.friendsList);
 
 	// Wire up the buttons
 	Array.from(document.querySelectorAll('.js-whisper-player')).forEach($button => {
@@ -143,11 +143,11 @@ function removeFriendsList() {
 	const $friendsListWindow = document.querySelector('.js-friends-list');
 	$friendsListWindow.parentNode.removeChild($friendsListWindow);
 
-	setWindowClosed(windowNames.friendsList);
+	setWindowClosed(WindowNames.friendsList);
 }
 
 function toggleFriendsList() {
-	if (isWindowOpen(windowNames.friendsList)) {
+	if (isWindowOpen(WindowNames.friendsList)) {
 		removeFriendsList();
 	} else {
 		createFriendsList();
@@ -166,9 +166,9 @@ function toggleXpMeterVisibility() {
 
 	// Save whether xpMeter is currently open or closed in the state
 	if (xpMeterContainer.style.display === 'none') {
-		setWindowClosed(windowNames.xpMeter);
+		setWindowClosed(WindowNames.xpMeter);
 	} else {
-		setWindowOpen(windowNames.xpMeter);
+		setWindowOpen(WindowNames.xpMeter);
 	}
 }
 
@@ -277,5 +277,5 @@ export {
 	setWindowOpen,
 	setWindowClosed,
 	isWindowOpen,
-	windowNames,
+	WindowNames,
 };
