@@ -2,6 +2,13 @@ import { getState, saveState } from './state';
 import { makeElement } from './misc';
 import * as player from './player';
 
+let windowNames = {
+	friendsList: 'friendsList',
+	blockList: 'blockList',
+	xpMeter: 'xpMeter',
+	merchant: 'merchant',
+};
+
 function createBlockList() {
 	const state = getState();
 
@@ -29,7 +36,7 @@ function createBlockList() {
 	});
 	document.body.appendChild($customSettings);
 
-	setWindowOpen('blockList');
+	setWindowOpen(windowNames.blockList);
 
 	// Wire up all the unblock buttons
 	Array.from(document.querySelectorAll('.js-unblock-player')).forEach($button => {
@@ -53,7 +60,7 @@ function removeBlockList() {
 	const $customSettingsWindow = document.querySelector('.js-blocked-list');
 	$customSettingsWindow.parentNode.removeChild($customSettingsWindow);
 
-	setWindowClosed('blockList');
+	setWindowClosed(windowNames.blockList);
 }
 
 function createFriendsList() {
@@ -91,7 +98,7 @@ function createFriendsList() {
 	});
 	document.body.appendChild($customFriendsList);
 
-	setWindowOpen('friendsList');
+	setWindowOpen(windowNames.friendsList);
 
 	// Wire up the buttons
 	Array.from(document.querySelectorAll('.js-whisper-player')).forEach($button => {
@@ -136,11 +143,11 @@ function removeFriendsList() {
 	const $friendsListWindow = document.querySelector('.js-friends-list');
 	$friendsListWindow.parentNode.removeChild($friendsListWindow);
 
-	setWindowClosed('friendsList');
+	setWindowClosed(windowNames.friendsList);
 }
 
 function toggleFriendsList() {
-	if (isWindowOpen('friendsList')) {
+	if (isWindowOpen(windowNames.friendsList)) {
 		removeFriendsList();
 	} else {
 		createFriendsList();
@@ -155,13 +162,13 @@ function toggleXpMeterVisibility() {
 		createXpMeter();
 	}
 
-	xpMeterContainer.style.display = isWindowOpen('xpMeter') ? 'block' : 'none';
+	xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
 
 	// Save whether xpMeter is currently open or closed in the state
-	if (isWindowOpen('xpMeter')) {
-		setWindowClosed('xpMeter');
+	if (xpMeterContainer.style.display === 'none') {
+		setWindowClosed(windowNames.xpMeter);
 	} else {
-		setWindowOpen('xpMeter');
+		setWindowOpen(windowNames.xpMeter);
 	}
 }
 
@@ -243,30 +250,12 @@ function createXpMeter() {
 function setWindowOpen(windowName) {
 	const state = getState();
 
-	// Send alert to console for inevitable typos in property names being passed
-	if (state.openWindows[windowName] == undefined) {
-		console.error(
-			'New state.openWindow property "' +
-				windowName +
-				'" being created instead of modifiying an existing property.',
-		);
-	}
-
 	state.openWindows[windowName] = true;
 	saveState();
 }
 
 function setWindowClosed(windowName) {
 	const state = getState();
-
-	// Send alert to console for inevitable typos in property names being passed
-	if (state.openWindows[windowName] == undefined) {
-		console.error(
-			'New state.openWindow property "' +
-				windowName +
-				'" being created instead of modifiying an existing property.',
-		);
-	}
 
 	state.openWindows[windowName] = false;
 	saveState();
@@ -288,4 +277,5 @@ export {
 	setWindowOpen,
 	setWindowClosed,
 	isWindowOpen,
+	windowNames,
 };

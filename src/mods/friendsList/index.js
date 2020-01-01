@@ -1,5 +1,5 @@
 import { makeElement } from '../../utils/misc';
-import { createFriendsList, toggleFriendsList, isWindowOpen } from '../../utils/ui';
+import { createFriendsList, toggleFriendsList, isWindowOpen, windowNames } from '../../utils/ui';
 
 // The F icon and the UI that appears when you click it
 function customFriendsList() {
@@ -16,7 +16,7 @@ function customFriendsList() {
 	document.querySelector('.js-friends-list-icon').addEventListener('click', toggleFriendsList);
 
 	// If it was open when the game last closed keep it open
-	if (isWindowOpen('friendsList')) {
+	if (isWindowOpen(windowNames.friendsList)) {
 		createFriendsList();
 	}
 }
