@@ -1,6 +1,6 @@
 import { getWindow } from '../../utils/game';
 import { makeElement, debounce } from '../../utils/misc';
-import { isWindowOpen, setWindowOpen, setWindowClosed } from '../../utils/ui';
+import { isWindowOpen, setWindowOpen, setWindowClosed, WindowNames } from '../../utils/ui';
 import { handleMerchantFilterInputChange, deleteMerchantObserver } from './helpers';
 
 function addMerchantFilter() {
@@ -12,7 +12,7 @@ function addMerchantFilter() {
 
 	$merchant.classList.add('js-merchant-initd');
 	$merchant.classList.add('uidom-merchant-with-filters');
-	setWindowOpen('merchant');
+	setWindowOpen(WindowNames.merchant);
 
 	const $lvMaximumField = $merchant.querySelectorAll('input[type="number"]')[1];
 
@@ -30,13 +30,13 @@ function addMerchantFilter() {
 }
 
 function cleanupMerchantObserver() {
-	if (isWindowOpen('merchant')) {
+	if (isWindowOpen(WindowNames.merchant)) {
 		const $merchant = document.querySelector('.js-merchant-initd');
 		if ($merchant) return;
 	}
 
 	// Window was set to open but is actually closed, let's clean up...
-	setWindowClosed('merchant');
+	setWindowClosed(WindowNames.merchant);
 	deleteMerchantObserver();
 }
 

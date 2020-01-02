@@ -20,9 +20,10 @@ let state = {
 		currentLvl: 0,
 	},
 	openWindows: {
-		openFriendsList: false,
-		openBlockList: false,
-		openXpMeter: false,
+		friendsList: false,
+		blockList: false,
+		xpMeter: false,
+		merchant: false,
 	},
 };
 

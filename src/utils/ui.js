@@ -2,6 +2,13 @@ import { getState, saveState } from './state';
 import { makeElement } from './misc';
 import * as player from './player';
 
+const WindowNames = {
+	friendsList: 'friendsList',
+	blockList: 'blockList',
+	xpMeter: 'xpMeter',
+	merchant: 'merchant',
+};
+
 function createBlockList() {
 	const state = getState();
 
@@ -29,9 +36,7 @@ function createBlockList() {
 	});
 	document.body.appendChild($customSettings);
 
-	// Save Friends List UI's state as opened
-	state.openWindows['openBlockList'] = true;
-	saveState();
+	setWindowOpen(WindowNames.blockList);
 
 	// Wire up all the unblock buttons
 	Array.from(document.querySelectorAll('.js-unblock-player')).forEach($button => {
@@ -52,14 +57,10 @@ function createBlockList() {
 }
 
 function removeBlockList() {
-	const state = getState();
-
 	const $customSettingsWindow = document.querySelector('.js-blocked-list');
 	$customSettingsWindow.parentNode.removeChild($customSettingsWindow);
 
-	// Save Blocked List UI's state as closed
-	state.openWindows['openBlockList'] = false;
-	saveState();
+	setWindowClosed(WindowNames.blockList);
 }
 
 function createFriendsList() {
@@ -97,9 +98,7 @@ function createFriendsList() {
 	});
 	document.body.appendChild($customFriendsList);
 
-	// Save Friends List UI's state as opened
-	state.openWindows['openFriendsList'] = true;
-	saveState();
+	setWindowOpen(WindowNames.friendsList);
 
 	// Wire up the buttons
 	Array.from(document.querySelectorAll('.js-whisper-player')).forEach($button => {
@@ -141,24 +140,36 @@ function createFriendsList() {
 }
 
 function removeFriendsList() {
-	const state = getState();
-
 	const $friendsListWindow = document.querySelector('.js-friends-list');
 	$friendsListWindow.parentNode.removeChild($friendsListWindow);
 
-	// Save Friends List UI's state as closed
-	state.openWindows['openFriendsList'] = false;
-	saveState();
+	setWindowClosed(WindowNames.friendsList);
+}
+
+function toggleFriendsList() {
+	if (isWindowOpen(WindowNames.friendsList)) {
+		removeFriendsList();
+	} else {
+		createFriendsList();
+	}
 }
 
 function toggleXpMeterVisibility() {
-	const state = getState();
-
 	const xpMeterContainer = document.querySelector('.js-xpmeter');
+
+	// Make it if it doesn't exist for some reason
+	if (!xpMeterContainer) {
+		createXpMeter();
+	}
+
 	xpMeterContainer.style.display = xpMeterContainer.style.display === 'none' ? 'block' : 'none';
 
-	state.openWindows.openXpMeter = xpMeterContainer.style.display === 'none' ? false : true;
-	saveState();
+	// Save whether xpMeter is currently open or closed in the state
+	if (xpMeterContainer.style.display === 'none') {
+		setWindowClosed(WindowNames.xpMeter);
+	} else {
+		setWindowOpen(WindowNames.xpMeter);
+	}
 }
 
 function createXpMeter() {
@@ -240,12 +251,14 @@ function setWindowOpen(windowName) {
 	const state = getState();
 
 	state.openWindows[windowName] = true;
+	saveState();
 }
 
 function setWindowClosed(windowName) {
 	const state = getState();
 
 	state.openWindows[windowName] = false;
+	saveState();
 }
 
 function isWindowOpen(windowName) {
@@ -258,9 +271,11 @@ export {
 	removeBlockList,
 	createFriendsList,
 	removeFriendsList,
+	toggleFriendsList,
 	toggleXpMeterVisibility,
 	createXpMeter,
 	setWindowOpen,
 	setWindowClosed,
 	isWindowOpen,
+	WindowNames,
 };

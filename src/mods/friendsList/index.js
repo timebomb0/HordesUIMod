@@ -1,11 +1,8 @@
 import { makeElement } from '../../utils/misc';
-import { createFriendsList } from '../../utils/ui';
-import { getState } from '../../utils/state';
+import { createFriendsList, toggleFriendsList, isWindowOpen, WindowNames } from '../../utils/ui';
 
 // The F icon and the UI that appears when you click it
 function customFriendsList() {
-	const state = getState();
-
 	var friendsIconElement = makeElement({
 		element: 'div',
 		class: 'btn border black js-friends-list-icon',
@@ -16,10 +13,10 @@ function customFriendsList() {
 	$elixirIcon.parentNode.insertBefore(friendsIconElement, $elixirIcon.nextSibling);
 
 	// Create the friends list UI
-	document.querySelector('.js-friends-list-icon').addEventListener('click', createFriendsList);
+	document.querySelector('.js-friends-list-icon').addEventListener('click', toggleFriendsList);
 
 	// If it was open when the game last closed keep it open
-	if (state.openWindows.openFriendsList) {
+	if (isWindowOpen(WindowNames.friendsList)) {
 		createFriendsList();
 	}
 }

@@ -14,7 +14,7 @@ function friendPlayer(playerName) {
 	saveState();
 
 	// If UI is open remake it with new changes
-	if (state.openWindows.openFriendsList) {
+	if (ui.isWindowOpen(ui.WindowNames.friendsList)) {
 		ui.removeFriendsList();
 		ui.createFriendsList();
 	}
@@ -33,7 +33,7 @@ function unfriendPlayer(playerName) {
 	saveState();
 
 	// If UI is open remake it with new changes
-	if (state.openWindows.openFriendsList) {
+	if (ui.isWindowOpen(ui.WindowNames.friendsList)) {
 		ui.removeFriendsList();
 		ui.createFriendsList();
 	}
@@ -53,7 +53,7 @@ function blockPlayer(playerName) {
 	saveState();
 
 	// If UI is open remake it with new changes
-	if (state.openWindows.openBlockList) {
+	if (ui.isWindowOpen(ui.WindowNames.blockList)) {
 		ui.removeBlockList();
 		ui.createBlockList();
 	}
