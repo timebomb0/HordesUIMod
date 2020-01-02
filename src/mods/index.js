@@ -13,6 +13,7 @@ import xpMeter from './xpMeter';
 import merchantFilter from './merchantFilter';
 import itemStatsCopy from './itemStatsCopy';
 import keyPressTracker from './_keyPressTracker';
+import depositAll from './depositAll';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -31,4 +32,5 @@ export default [
 	xpMeter,
 	merchantFilter,
 	itemStatsCopy,
+	depositAll,
 ];
