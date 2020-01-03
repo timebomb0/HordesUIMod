@@ -1,5 +1,5 @@
 import modStart from './_modStart';
-import blockedPlayerSettings from './blockedPlayerSettings';
+import customSettings from './customSettings';
 import chatContextMenu from './chatContextMenu';
 import chatFilters from './chatFilters';
 import chatTabs from './chatTabs';
@@ -13,6 +13,7 @@ import xpMeter from './xpMeter';
 import merchantFilter from './merchantFilter';
 import itemStatsCopy from './itemStatsCopy';
 import keyPressTracker from './_keyPressTracker';
+import clanActivityTracker from './clanActivityTracker';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -21,7 +22,7 @@ export default [
 	resizableMap,
 	mapControls,
 	friendsList,
-	blockedPlayerSettings,
+	customSettings,
 	resizableChat,
 	chatFilters,
 	chatContextMenu,
@@ -31,4 +32,5 @@ export default [
 	xpMeter,
 	merchantFilter,
 	itemStatsCopy,
+	clanActivityTracker,
 ];

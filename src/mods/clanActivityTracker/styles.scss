@@ -1,0 +1,19 @@
+/* Lazy way to get tables to display side by side, given they share their container with various other elements */
+.uimod-clan-lastseen-table {
+	float: right;
+	width: 25%;
+
+	/* Make the last seen table look like its part of the main clan members table */
+	position: relative;
+	right: 1px;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+
+	tr.js-offline-member {
+		opacity: 0.5;
+	}
+}
+.uimod-clan-members-table {
+	float: left;
+	width: 75%;
+}

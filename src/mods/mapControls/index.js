@@ -11,13 +11,14 @@ function mapControls() {
 	}
 	const $mapContainer = document.querySelector('.js-map');
 
+	// We only use the `js-map-move` button in the `draggableUI` mod
 	const $mapButtons = makeElement({
 		element: 'div',
 		class: 'js-map-btns',
 		content: `
             <button class="js-map-opacity-add">+</button>
             <button class="js-map-opacity-minus">-</button>
-            <button class="js-map-reset">r</button>
+			<button class="js-map-reset">r</button>
         `,
 	});
 

@@ -1,5 +1,6 @@
 import { getState, saveState } from './state';
 import { makeElement } from './misc';
+import * as chat from './chat';
 import * as player from './player';
 
 const WindowNames = {
@@ -7,6 +8,7 @@ const WindowNames = {
 	blockList: 'blockList',
 	xpMeter: 'xpMeter',
 	merchant: 'merchant',
+	clan: 'clan',
 };
 
 function createBlockList() {
@@ -85,15 +87,19 @@ function createFriendsList() {
 		});
 
 	const customFriendsWindowHTML = `
-		<h3 class="textprimary">Friends list</h3>
+		<div class="titleframe uimod-friends-list-helper">
+				<div class="textprimary title uimod-friends-list-helper">
+					<div name="title">Friends list</div>
+				</div>
+				<img src="/assets/ui/icons/cross.svg?v=3282286" class="js-close-custom-friends-list btn black svgicon">
+		</div>
+		<div class="uimod-friends-intro">To add someone as a friend, click their name in chat and then click Friend :)</div>
 		<div class="uimod-friends">${friendsListHTML}</div>
-		<p></p>
-		<div class="btn purp js-close-custom-friends-list">Close</div>
 	`;
 
 	const $customFriendsList = makeElement({
 		element: 'div',
-		class: 'menu panel-black js-friends-list uimod-custom-window',
+		class: 'menu window panel-black js-friends-list uimod-custom-window',
 		content: customFriendsWindowHTML,
 	});
 	document.body.appendChild($customFriendsList);
@@ -186,13 +192,13 @@ function createXpMeter() {
 	const xpMeterHTMLString = `
         <div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
             <div class="window panel-black uimod-xpmeter-2">
-                <div class="titleframe uimod-xpmeter-2">
-                    <img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon uimod-xpmeter-2">
-                        <div class="textprimary title uimod-xpmeter-2">
-                            <div name="title">Experience / XP</div>
-                        </div>
-                        <img src="/assets/ui/icons/cross.svg?v=3282286" class="js-xpmeter-close-icon btn black svgicon">
-                </div>
+			<div class="titleframe uimod-xpmeter-2">
+			<img src="/assets/ui/icons/trophy.svg?v=3282286" class="titleicon svgicon uimod-xpmeter-2">
+				<div class="textprimary title uimod-xpmeter-2">
+					<div name="title">Experience / XP</div>
+				</div>
+				<img src="/assets/ui/icons/cross.svg?v=3282286" class="js-xpmeter-close-icon btn black svgicon">
+		</div>
                 <div class="slot uimod-xpmeter-2" style="">
                     <div class="wrapper uimod-xpmeter-1">
                         <div class="bar  uimod-xpmeter-3" style="z-index: 0;">
@@ -242,6 +248,16 @@ function createXpMeter() {
 	$layoutContainer.appendChild($xpMeterElement.firstChild);
 }
 
+function resetUiPositions() {
+	const state = getState();
+
+	state.windowsPos = {};
+	saveState();
+	chat.addChatMessage(
+		'Please refresh the page for the reset frame & window positions to take effect.',
+	);
+}
+
 // state.openWindows should always only be managed by this file
 // Sometimes we want to track when a UI window we don't control is opened/closed
 // We use these methods to help facilitate that
@@ -274,6 +290,7 @@ export {
 	toggleFriendsList,
 	toggleXpMeterVisibility,
 	createXpMeter,
+	resetUiPositions,
 	setWindowOpen,
 	setWindowClosed,
 	isWindowOpen,
