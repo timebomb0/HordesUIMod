@@ -56,7 +56,7 @@ function chatContextMenu() {
 
 	const addContextMenu = ($name, name) => {
 		$name.classList.add('js-is-context-menu-initd');
-		// Add name to element so we can target it in CSS when filtering chat for block list
+		// Add name to element so we can target it in CSS, e.g. when filtering chat for block list
 		$name.setAttribute('data-chat-name', name);
 
 		const showContextMenu = clickEvent => {

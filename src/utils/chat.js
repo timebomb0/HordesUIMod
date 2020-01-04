@@ -23,6 +23,7 @@ function filterAllChat() {
 		const $blockedChatNames = Array.from(
 			document.querySelectorAll(`[data-chat-name="${blockedName}"]:not(.js-line-blocked)`),
 		);
+
 		// Hide each of their messages
 		$blockedChatNames.forEach($name => {
 			// Add the class name to $name so we can track whether it's been hidden in our CSS selector $blockedChatNames
