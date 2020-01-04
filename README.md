@@ -74,12 +74,7 @@ You will also need to update `src/mods/index.js`, adding your mod to the end of 
 
 # Other places contributors will need to touch
 
-Increment `VERSION` in `src/version.js`.
-Generally, bugfixes/small improvements to existing features should increment the third number `1.0.1`.
-New features should increment the second number `1.1.1`.
-Don't worry about incrementing the first number.
-
-Finally, add yourself as an author - update `src/authors.js` and add your preferred name to the end of the array. It'll be included in the compiled userscript on all future versions.
+Add yourself as an author - update `src/authors.js` and add your preferred name to the end of the array. It'll be included in the compiled userscript on all future versions.
 
 # Building the userscript
 

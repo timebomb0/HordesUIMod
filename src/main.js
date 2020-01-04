@@ -45,7 +45,9 @@ function initialize() {
 		rerunning.onDomChange.forEach(callback => callback(mutations));
 	});
 	Array.from(
-		document.querySelectorAll('.layout > .container, .actionbarcontainer, .partyframes'),
+		document.querySelectorAll(
+			'.layout > .container, .actionbarcontainer, .partyframes, .targetframes',
+		),
 	).forEach($container => {
 		rerunObserver.observe($container, {
 			attributes: false,

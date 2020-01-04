@@ -20,19 +20,38 @@ function _handleCooldownUpdate(mutations) {
 		const skillId = $cooldownOverlay.parentNode.id;
 		const cooldownPercentageLeft = parseInt($cooldownOverlay.style.height);
 
-		const cooldownState = tempState.cooldownNums[skillId];
-		if (!cooldownState.initialCooldownTimestamp) {
-			cooldownState.initialCooldownTimestamp = Date.now();
-			cooldownState.initialCooldownPcntLeft = cooldownPercentageLeft;
+		let cdState = tempState.cooldownNums[skillId];
+
+		// If cooldown percentage left is greater than the current initial cooldown pcnt left,
+		// that means the skill cooldown counter is still tracking an old cooldown.
+		// This can happen rarely if the user casts the ability the instant it comes off cooldown.
+		// In this scenario, we want to reset the cooldown state.
+		// If we don't reset the cooldown state, the cooldown number will be wrong because
+		// `initialCooldownTime` will be from the previous cast, not the current cast.
+		if (
+			cdState.initialCooldownPcntLeft &&
+			cooldownPercentageLeft >= cdState.initialCooldownPcntLeft
+		) {
+			cdState.initialCooldownTimestamp = null;
+			cdState.initialCooldownPcntLeft = null;
+			cdState.latestCooldownTimestamp = null;
+			cdState.latestCooldownPcntLeft = null;
+			cdState.calculationCount = 0;
 		}
-		cooldownState.latestCooldownTimestamp = Date.now();
-		cooldownState.latestCooldownPcntLeft = cooldownPercentageLeft;
-		cooldownState.calculationCount++;
+
+		if (!cdState.initialCooldownTimestamp) {
+			cdState.initialCooldownTimestamp = Date.now();
+			cdState.initialCooldownPcntLeft = cooldownPercentageLeft;
+		}
+		cdState.latestCooldownTimestamp = Date.now();
+		cdState.latestCooldownPcntLeft = cooldownPercentageLeft;
+		cdState.calculationCount++;
+
 		// Minimum number of numbers to figure out an accurate enough real cooldown number = 3
 		// Set the cooldown number in the UI
-		if (cooldownState.calculationCount > 2) {
+		if (cdState.calculationCount > 2) {
 			const $cooldownNum = $cooldownOverlay.querySelector('.js-cooldown-num');
-			$cooldownNum.innerText = _getCooldownText(cooldownState);
+			$cooldownNum.innerText = _getCooldownText(cdState);
 		}
 	});
 }
