@@ -114,13 +114,33 @@ function handleClanWindowChange() {
 
 	const $clanWindow = document.querySelector('.window .clanView');
 	// Table takes a moment to be created after clanView window is opened
-	const $clanMemberTable = $clanWindow.querySelector('table:not(.js-clan-lastseen-table)');
+	const $clanMemberTable = $clanWindow.querySelector('table:not(.js-clan-lastseen-initd)');
 	if (!$clanMemberTable) return;
 
+	// If not in Members tab (e.g. Applications tab), don't initialize Last seen
+	// Check if we're in Members tab by seeing if there are 2 columns or not
+	// (This allows us to support multiple languages, as opposed to checking for "Applications")
+	const isMembersTab = Array.from($clanMemberTable.querySelectorAll('thead th')).length === 2;
+	const $lastSeenTable = $clanWindow.querySelector('.js-clan-lastseen-table');
+	if (!isMembersTab) {
+		// Hide last seen table if it's visible
+		if ($lastSeenTable) $lastSeenTable.style.display = 'none';
+		return;
+	} else if ($lastSeenTable) {
+		// Unhide it when we are on Members table
+		$lastSeenTable.setAttribute('style', '');
+	}
+
 	// Initialize the table column if we haven't already
-	if (!$clanWindow.classList.contains('js-clan-members-table-initd')) {
-		$clanWindow.classList.add('js-clan-members-table-initd');
-		$clanMemberTable.classList.add('uimod-clan-members-table');
+	// The clan member table loses its class when the tab is changed, so we check
+	if (!$clanMemberTable.classList.contains('js-clan-members-table-initd')) {
+		$clanMemberTable.classList.add('js-clan-members-table-initd', 'uimod-clan-members-table');
+
+		// Last seen table may already exist if we're switching from Applications tab back to Members tab
+		if ($lastSeenTable) return;
+
+		// If last seen table hasn't been created, create it.
+
 		// We add a new table next to the preexisting table.
 		// We don't just add a new column because Svelte changes the columns and rows around
 		// a lot, pretty randomly. This leads to our right-most column occasionally bugging out
