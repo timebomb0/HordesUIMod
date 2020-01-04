@@ -1,9 +1,19 @@
-/* Allows windows to be moved */
-.window {
-    position: relative;
+/* Allows windows and frames to be moved */
+.window,
+.partyframes,
+#ufplayer,
+#uftarget,
+#skillbar,
+.js-map {
+	position: relative;
+}
+
+/* Retaining the default party frame with so we can override the "style" property */
+.partyframes {
+	width: 200px;
 }
 
 /* All purpose hidden class */
 .js-hidden {
-    display: none;
+	display: none;
 }

@@ -39,6 +39,8 @@ const tempState = {
 		control: false,
 		alt: false,
 	}, // set by _keyModifiers mod
+	cooldownNums: {},
+	cooldownObservers: {},
 };
 
 function getState() {

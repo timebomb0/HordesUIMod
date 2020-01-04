@@ -8,3 +8,35 @@
 	margin: 0 20px;
 	overflow-y: auto;
 }
+
+/* Helps imitate normal UI window */
+.uimod-friends-list-helper {
+	&.titleframe {
+		line-height: 1em;
+		display: flex;
+		align-items: start;
+		position: relative;
+		letter-spacing: 0.5px;
+		margin-top: 8px;
+	}
+
+	&.titleicon {
+		margin: 3px;
+	}
+
+	&.title {
+		width: 100%;
+		padding-left: 4px;
+		font-weight: bold;
+	}
+}
+
+.uimod-friends-intro {
+	width: 100%;
+	margin: 4px 0 14px;
+	text-align: center;
+	border-bottom: 2px solid #999;
+	padding-bottom: 6px;
+	font-weight: bold;
+	user-select: none;
+}

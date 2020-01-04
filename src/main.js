@@ -38,20 +38,24 @@ function initialize() {
 	});
 
 	// Continuously re-run specific mods methods that need to be executed on UI change
-	const rerunObserver = new MutationObserver(() => {
+	const rerunObserver = new MutationObserver(mutations => {
 		// If new window appears, e.g. even if window is closed and reopened, we need to rewire it
 		// Fun fact: Some windows always exist in the DOM, even when hidden, e.g. Inventory
 		// 		     But some windows only exist in the DOM when open, e.g. Interaction
-		rerunning.onDomChange.forEach(callback => callback());
+		rerunning.onDomChange.forEach(callback => callback(mutations));
 	});
-	rerunObserver.observe(document.querySelector('.layout > .container'), {
-		attributes: false,
-		childList: true,
+	Array.from(
+		document.querySelectorAll('.layout > .container, .actionbarcontainer, .partyframes'),
+	).forEach($container => {
+		rerunObserver.observe($container, {
+			attributes: false,
+			childList: true,
+		});
 	});
 
 	// Rerun only on chat messages changing
-	const chatRerunObserver = new MutationObserver(() => {
-		rerunning.onChatChange.forEach(callback => callback());
+	const chatRerunObserver = new MutationObserver(mutations => {
+		rerunning.onChatChange.forEach(callback => callback(mutations));
 	});
 	chatRerunObserver.observe(document.querySelector('#chat'), {
 		attributes: false,
