@@ -15,6 +15,7 @@ import itemStatsCopy from './itemStatsCopy';
 import keyPressTracker from './_keyPressTracker';
 import clanActivityTracker from './clanActivityTracker';
 import skillCooldownNumbers from './skillCooldownNumbers';
+import depositAll from './depositAll';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -35,4 +36,5 @@ export default [
 	itemStatsCopy,
 	clanActivityTracker,
 	skillCooldownNumbers,
+	depositAll,
 ];
