@@ -14,6 +14,7 @@ import merchantFilter from './merchantFilter';
 import itemStatsCopy from './itemStatsCopy';
 import keyPressTracker from './_keyPressTracker';
 import clanActivityTracker from './clanActivityTracker';
+import skillCooldownNumbers from './skillCooldownNumbers';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -33,4 +34,5 @@ export default [
 	merchantFilter,
 	itemStatsCopy,
 	clanActivityTracker,
+	skillCooldownNumbers,
 ];

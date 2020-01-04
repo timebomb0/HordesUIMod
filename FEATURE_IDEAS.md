@@ -10,6 +10,7 @@
 -   Ctrl clicking item in inventory when Merchant is open to paste item name into search field, and search
 -   Add keybind for friends list (Need to create custom keybind UI, accessible from Settings, disallow using same keybinds as game)
 -   Alt+right click item stats should work from other windows - character at least, but ideally stash and auction
+-   Add ability to alt+right click (or something like that) item in merchant to whisper the seller
 -   (MAYBE) Track your sales in auction (may need more planning) (though Merchant UI being replaced by dek at some point...)
 -   (MAYBE) Improved healer party frames
 -   (MAYBE) Add toggleable option to include chat messages to right of party frame
