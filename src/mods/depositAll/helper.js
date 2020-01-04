@@ -7,18 +7,16 @@ function deposit() {
 	// Select normal deposit button
 	$stash.querySelector('.slot .grey.gold:not(.js-deposit-all)').dispatchEvent(new Event('click'));
 
-	// Input some huge value they'll have less than
-
 	const $currencyInput = $stash.querySelector('input.formatted');
 
+	// Input some huge value they'll have less than
 	$currencyInput.value = 999999999999999;
 	$currencyInput.dispatchEvent(new Event('input'));
 
 	setTimeout(function() {
-		// Only try to deposit if the Deposit button isn't disabled after the input event, avoids chat errors for invalid amount
-		if (!$stash.querySelector('.btn.blue.disabled')) {
-			// Click Deposit
-			$stash.querySelector('.btn.blue').dispatchEvent(new Event('click'));
+		const $depositButton = $stash.querySelector('.btn.blue');
+		if (!$depositButton.classList.contains('disabled')) {
+			$depositButton.dispatchEvent(new Event('click'));
 		}
 
 		// Clear input
