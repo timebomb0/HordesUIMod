@@ -17,7 +17,7 @@ function draggableUIWindows() {
 	`),
 	).forEach($frame => {
 		$frame.classList.add('js-can-move');
-		helpers.dragElement($frame);
+		helpers.dragElement($frame, null, 500);
 	});
 }
 

@@ -23,5 +23,4 @@
 
 ==Bugs==
 
--   Occasionally target health frame can't be dragged until a window is opened or other UI change occurs.
 -   If any windows are dragged outside of the screen view, they become inaccessible. We should pop it back into view automatically if it's dragged too far (Temporarily rectified - can reset UI pos in Settings)
