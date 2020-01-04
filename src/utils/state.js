@@ -25,6 +25,7 @@ let state = {
 		xpMeter: false,
 		merchant: false,
 	},
+	clanLastActiveMembers: {},
 };
 
 // tempState is saved only between page refreshes.
