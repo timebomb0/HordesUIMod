@@ -9,6 +9,7 @@ const WindowNames = {
 	xpMeter: 'xpMeter',
 	merchant: 'merchant',
 	clan: 'clan',
+	stash: 'stash',
 };
 
 function createBlockList() {
