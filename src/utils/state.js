@@ -26,6 +26,7 @@ let state = {
 		merchant: false,
 	},
 	clanLastActiveMembers: {},
+	lockedItemSlots: [],
 };
 
 // tempState is saved only between page refreshes.

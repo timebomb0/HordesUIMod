@@ -70,4 +70,9 @@ function getWindow(windowTitle) {
 		: $specificWindowTitle;
 }
 
-export { getTooltipContent, getWindow };
+// Emulates right click, e.g. to open context menu on item in inventory
+function triggerRightClickMenu($element) {
+	$element.dispatchEvent(new PointerEvent('pointerup', { button: 2, isTrusted: true }));
+}
+
+export { getTooltipContent, getWindow, triggerRightClickMenu };

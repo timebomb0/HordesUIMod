@@ -25,6 +25,7 @@
 		"localStorage": "readonly",
 		"KeyboardEvent": "readonly",
 		"Event": "readonly",
+		"PointerEvent": "readonly",
 		"window": "readonly",
 		"console": "readonly",
 		"process": "readonly",

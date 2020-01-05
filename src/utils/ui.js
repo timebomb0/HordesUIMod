@@ -10,6 +10,7 @@ const WindowNames = {
 	merchant: 'merchant',
 	clan: 'clan',
 	stash: 'stash',
+	inventory: 'inventory',
 };
 
 function createBlockList() {
