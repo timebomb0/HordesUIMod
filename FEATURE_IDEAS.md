@@ -1,15 +1,13 @@
 ==Potential features==
 
--   Lock inventory slots (idea: red transparent square when locked, capture clicks on the square, pass them through if not dropping item)
 -   Add whisper chat filter
 -   Implement inventory sorting
 -   Clicking names in party to add as friends
 -   Tooltip on buffs to show name+basic effect [cant get level probably]
 -   Track gold per hour, must keep inventory open though [make sure user is aware]
 -   Ctrl clicking item in inventory when Merchant is open to paste item name into search field, and search
--   Add keybind for friends list (Need to create custom keybind UI, accessible from Settings, disallow using same keybinds as game)
 -   Alt+right click item stats should work from other windows - character at least, but ideally stash and auction
--   (MAYBE) Track your sales in auction (may need more planning) (though Merchant UI being replaced by dek at some point...)
+-   (MAYBE) Add keybind for friends list (Need to create custom keybind UI, accessible from Settings, disallow using same keybinds as game)
 -   (MAYBE) Improved healer party frames
 -   (MAYBE) Add toggleable option to include chat messages to right of party frame
 -   (MAYBE) Fame/time meter

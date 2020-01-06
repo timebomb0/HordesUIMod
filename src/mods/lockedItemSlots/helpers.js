@@ -1,6 +1,8 @@
 import { triggerRightClickMenu } from '../../utils/game';
 import { getState, getTempState, saveState } from '../../utils/state';
 import { makeElement } from '../../utils/misc';
+import { WindowNames } from '../../utils/ui';
+import { getWindow } from '../../utils/game';
 
 function _wireLockSlot($lockedSlot) {
 	const state = getState();
@@ -9,10 +11,20 @@ function _wireLockSlot($lockedSlot) {
 	const slotNumber = $lockedSlot.getAttribute('data-locked-slot-num');
 	const $bagSlot = document.querySelector(`#bag${slotNumber}`);
 
+	// Left clicking works normally, proxy it through
 	$lockedSlot.addEventListener('click', () => {
 		$bagSlot.dispatchEvent(new Event('pointerup'));
 	});
 
+	// Hovering to see the tooltip works normally, proxy it through
+	$lockedSlot.addEventListener('pointerenter', () => {
+		$bagSlot.dispatchEvent(new Event('pointerenter'));
+	});
+	$lockedSlot.addEventListener('pointerleave', () => {
+		$bagSlot.dispatchEvent(new Event('pointerleave'));
+	});
+
+	// Right clicking removes Drop item from menu, otherwise works normally, proxy it through
 	$lockedSlot.addEventListener('contextmenu', () => {
 		// Block shift+right click
 		if (tempState.keyModifiers.shift) return;
@@ -74,4 +86,16 @@ function lockSlot(slotNumber) {
 	_wireLockSlot($lockedSlot);
 }
 
-export { lockSlot };
+function initLockedSlots() {
+	const state = getState();
+
+	const $inventory = getWindow(WindowNames.inventory);
+	if (!$inventory || $inventory.classList.contains('js-locked-slots-initd')) return;
+
+	$inventory.classList.add('js-locked-slots-initd');
+
+	// Initialize locked slots UI
+	state.lockedItemSlots.forEach(lockSlot);
+}
+
+export { lockSlot, initLockedSlots };

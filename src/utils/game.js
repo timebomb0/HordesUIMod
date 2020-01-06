@@ -61,13 +61,24 @@ async function getTooltipContent($elementToHoverOver, getDetailedTooltips) {
 }
 
 // Use this to get a specific window, rather than using the svelte class, which is not preferable
-function getWindow(windowTitle) {
+// Only returns window if it is visible. Some windows are kept in DOM at all times, but are not visible until opened, e.g. Inventory.
+// To get window even if it isn't visible (but is still in DOM), pass `true` to second argument
+function getWindow(windowTitle, getInvisibleWindow) {
 	const $specificWindowTitle = Array.from(
 		document.querySelectorAll('.window [name="title"]'),
 	).find($windowTitle => $windowTitle.textContent.toLowerCase() === windowTitle.toLowerCase());
-	return $specificWindowTitle
+	const $window = $specificWindowTitle
 		? $specificWindowTitle.parentNode.parentNode.parentNode
 		: $specificWindowTitle;
+
+	// If window is invisible, don't return it unless we are overriding with `getInvisibleWindow`
+	if (!$window || (!$window.offsetParent && !getInvisibleWindow)) {
+		return;
+	} else {
+		return $specificWindowTitle
+			? $specificWindowTitle.parentNode.parentNode.parentNode
+			: $specificWindowTitle;
+	}
 }
 
 // Emulates right click, e.g. to open context menu on item in inventory
