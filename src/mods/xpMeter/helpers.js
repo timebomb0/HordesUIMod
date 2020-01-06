@@ -5,22 +5,20 @@ function getCurrentCharacterLvl() {
 }
 
 function getCurrentXp() {
-	return Number(
-		document
-			.querySelector('#expbar .progressBar > .left')
-			.textContent.split('/')[0]
-			.trim(),
-	);
+  return Number(document.querySelector('#expbar .progressBar > .left')
+		.textContent.split('/')[0]
+		.replace(/,/g, '')
+		.trim());
 }
 
 function getNextLevelXp() {
-	return Number(
-		document
-			.querySelector('#expbar .progressBar > .left')
-			.textContent.split('/')[1]
-			.trim(),
-	);
+  return Number(document.querySelector('#expbar .progressBar > .left')
+		.textContent.split('/')[1]
+		.replace(/,/g, '')
+		.replace('EXP','')
+		.trim());
 }
+
 
 // user invoked reset of xp meter stats
 function resetXpMeterState() {
