@@ -74,11 +74,38 @@ function renderLockedItemSlots() {
 	initLockedSlots();
 }
 
+// Removes non-numbers and duplicates from state.lockedItemSlots, and ensures it is an array
+// This is primarily necessary because the original release had a few bugs that allowed a slot
+// to be in the state array multiple times, or allowed `null` to be in the array. This isn't expected and caused bugs.
+function cleanLockedItemState() {
+	const state = getState();
+
+	// If something really went wrong and lockedItemSlots isn't an array, set it to an empty array
+	if (!Array.isArray(state.lockedItemSlots)) {
+		state.lockedItemSlots = [];
+		saveState();
+		return;
+	}
+
+	// Remove duplicates and non-numbers
+	const cleanedLockItems = Array.from(new Set(state.lockedItemSlots)).filter(
+		item => typeof item === 'number',
+	);
+
+	const itemsAreSame = cleanedLockItems.sort().join() === state.lockedItemSlots.sort().join();
+	if (!itemsAreSame) {
+		state.lockedItemSlots = cleanedLockItems;
+		saveState();
+	}
+}
+
 export default {
 	name: 'Locked item slots',
 	description:
 		'Allows you to lock inventory slots so you can not drop those items or shift+right click them',
 	run: ({ registerOnDomChange }) => {
+		cleanLockedItemState();
+
 		// Initialize locked item overlays
 		renderLockedItemSlots();
 

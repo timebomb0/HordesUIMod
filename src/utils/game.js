@@ -81,9 +81,4 @@ function getWindow(windowTitle, getInvisibleWindow) {
 	}
 }
 
-// Emulates right click, e.g. to open context menu on item in inventory
-function triggerRightClickMenu($element) {
-	$element.dispatchEvent(new PointerEvent('pointerup', { button: 2, isTrusted: true }));
-}
-
-export { getTooltipContent, getWindow, triggerRightClickMenu };
+export { getTooltipContent, getWindow };

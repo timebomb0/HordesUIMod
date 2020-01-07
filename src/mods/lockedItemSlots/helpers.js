@@ -1,4 +1,3 @@
-import { triggerRightClickMenu } from '../../utils/game';
 import { getState, getTempState, saveState } from '../../utils/state';
 import { makeElement } from '../../utils/misc';
 import { WindowNames } from '../../utils/ui';
@@ -25,14 +24,14 @@ function _wireLockSlot($lockedSlot) {
 	});
 
 	// Right clicking removes Drop item from menu, otherwise works normally, proxy it through
-	$lockedSlot.addEventListener('contextmenu', () => {
+	$lockedSlot.addEventListener('contextmenu', event => {
 		// Block shift+right click
 		if (tempState.keyModifiers.shift) return;
 		// Don't do anything if no item in this slot
 		if (!$bagSlot.querySelector('img')) return;
 
 		// Emulate right click on the item to display its context menu
-		triggerRightClickMenu($bagSlot);
+		$bagSlot.dispatchEvent(new PointerEvent('pointerup', event));
 		setTimeout(() => {
 			const $contextMenuChoices = Array.from(
 				document.querySelectorAll('.container > .panel.context .choice'),
