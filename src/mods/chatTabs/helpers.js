@@ -1,4 +1,3 @@
-import * as chat from '../../utils/chat';
 import { getState, getTempState, saveState } from '../../utils/state';
 import { makeElement, uuid } from '../../utils/misc';
 
@@ -8,8 +7,6 @@ const DEFAULT_CHAT_TAB_NAME = 'Untitled';
 // filter being true means it's invisible(filtered) in chat
 // filter being false means it's visible(unfiltered) in chat
 function getCurrentChatFilters() {
-	const state = getState();
-
 	// Saved by the official game client
 	const gameFilters = JSON.parse(localStorage.getItem('filteredChannels'));
 	return {
@@ -19,7 +16,6 @@ function getCurrentChatFilters() {
 		clan: gameFilters.includes('clan'),
 		pvp: gameFilters.includes('pvp'),
 		inv: gameFilters.includes('inv'),
-		GM: !state.chat.GM, // state.chat.GM is whether or not GM chat is shown - we want whether or not GM chat should be hidden
 	};
 }
 
@@ -116,6 +112,7 @@ function selectChatTab(tabId) {
 	const $filterButtons = Array.from(document.querySelectorAll('.channelselect small'));
 	Object.keys(tabFilters).forEach(filter => {
 		const $filterButton = $filterButtons.find($btn => $btn.textContent === filter);
+		if (!$filterButton) return;
 		const isCurrentlyFiltered = $filterButton.classList.contains('textgrey');
 
 		// If is currently filtered but filter for this tab is turned off, click it to turn filter off
@@ -127,10 +124,6 @@ function selectChatTab(tabId) {
 			$filterButton.click();
 		}
 	});
-
-	// Update state for our custom chat filters to match the tab's configuration, then filter chat for it
-	const isGMChatVisible = !tabFilters.GM;
-	chat.setGMChatVisibility(isGMChatVisible);
 
 	// Update the selected tab in state
 	state.selectedChatTabId = tabId;

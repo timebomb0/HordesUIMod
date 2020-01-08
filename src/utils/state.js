@@ -3,9 +3,6 @@ const STORAGE_STATE_KEY = 'hordesio-uimodsakaiyo-state';
 
 let state = {
 	breakingVersion: BREAKING_VERSION,
-	chat: {
-		GM: true,
-	},
 	windowsPos: {},
 	blockList: {},
 	friendsList: {},

@@ -1,17 +1,5 @@
-import { getState, saveState } from './state';
+import { getState } from './state';
 import { makeElement } from './misc';
-
-// Updates state.chat.GM and the DOM to make text white/grey depending on if gm chat is visible/filtered
-// Then filters chat and saves updated chat state
-function setGMChatVisibility(isGMChatVisible) {
-	const state = getState();
-
-	const $chatGM = document.querySelector(`.js-chat-gm`);
-	state.chat.GM = isGMChatVisible;
-	$chatGM.classList.toggle('textgrey', !state.chat.GM);
-	filterAllChat();
-	saveState();
-}
 
 // Filters all chat based on custom filters
 function filterAllChat() {
@@ -31,14 +19,6 @@ function filterAllChat() {
 			const $line = $name.parentNode.parentNode.parentNode;
 			// Add the class name to $line so we can visibly hide the entire chat line
 			$line.classList.add('js-line-blocked');
-		});
-	});
-
-	// Custom channel filter
-	Object.keys(state.chat).forEach(channel => {
-		Array.from(document.querySelectorAll(`.text${channel}.content`)).forEach($textItem => {
-			const $line = $textItem.parentNode.parentNode;
-			$line.classList.toggle('js-line-hidden', !state.chat[channel]);
 		});
 	});
 }
@@ -111,4 +91,4 @@ function addChatMessage(text) {
 	$chat.scrollTop = $chat.scrollHeight;
 }
 
-export { setGMChatVisibility, filterAllChat, whisperPlayer, partyPlayer, addChatMessage };
+export { filterAllChat, whisperPlayer, partyPlayer, addChatMessage };

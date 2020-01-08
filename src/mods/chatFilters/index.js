@@ -1,38 +1,35 @@
 import * as chat from '../../utils/chat';
-import { getState } from '../../utils/state';
-import { makeElement } from '../../utils/misc';
+import { saveState, getState } from '../../utils/state';
 
-// Creates DOM elements for custom chat filters
-function newChatFilters() {
+// Remove GM chat filter state for users of v1.2.5 and prior
+function removeGmChatFilter() {
 	const state = getState();
 
-	const $channelselect = document.querySelector('.channelselect');
-	if (!document.querySelector(`.js-chat-gm`)) {
-		const $gm = makeElement({
-			element: 'small',
-			class: `btn border black js-chat-gm ${state.chat.GM ? '' : 'textgrey'}`,
-			content: 'GM',
-		});
-		$channelselect.appendChild($gm);
-	}
-}
+	let stateUpdated = false;
 
-// Wire up new chat buttons to toggle in state+ui
-function newChatFilterButtons() {
-	const state = getState();
+	state.chatTabs = state.chatTabs.map(chatTabState => {
+		if (!chatTabState) return chatTabState;
 
-	const $chatGM = document.querySelector(`.js-chat-gm`);
-	$chatGM.addEventListener('click', () => {
-		chat.setGMChatVisibility(!state.chat.GM);
+		if (chatTabState.filters && chatTabState.filters.hasOwnProperty('GM')) {
+			delete chatTabState.filters.GM;
+			stateUpdated = true;
+		}
+		return chatTabState;
 	});
+
+	if (state.chat) {
+		delete state.chat;
+		stateUpdated = true;
+	}
+
+	if (stateUpdated) saveState();
 }
 
 export default {
 	name: 'Chat filters',
-	description: 'Enables custom chat filters: GM chat',
+	description: "Filters all chat, e.g. ensuring blocked users' messages are not visible in chat.",
 	run: ({ registerOnChatChange }) => {
-		newChatFilters();
-		newChatFilterButtons();
+		removeGmChatFilter();
 
 		// Whenever chat changes, we want to filter it
 		registerOnChatChange(chat.filterAllChat);

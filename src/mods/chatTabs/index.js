@@ -121,8 +121,26 @@ function customChatTabs() {
 	}
 }
 
+function cleanCustomChatTabState() {
+	const state = getState();
+
+	let stateUpdated = true;
+	state.chatTabs = state.chatTabs.filter(chatTab => {
+		if (!chatTab) {
+			stateUpdated = true;
+			return false;
+		}
+		return true;
+	});
+
+	if (stateUpdated) saveState();
+}
+
 export default {
 	name: 'Chat tabs',
 	description: 'Enables support for multiple chat tabs',
-	run: customChatTabs,
+	run: () => {
+		cleanCustomChatTabState();
+		customChatTabs();
+	},
 };
