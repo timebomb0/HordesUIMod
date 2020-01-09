@@ -112,13 +112,13 @@ function createFriendsList() {
 	Array.from(document.querySelectorAll('.js-whisper-player')).forEach($button => {
 		$button.addEventListener('click', clickEvent => {
 			const name = clickEvent.target.getAttribute('data-player-name');
-			player.whisperPlayer(name);
+			chat.whisperPlayer(name);
 		});
 	});
 	Array.from(document.querySelectorAll('.js-party-player')).forEach($button => {
 		$button.addEventListener('click', clickEvent => {
 			const name = clickEvent.target.getAttribute('data-player-name');
-			player.partyPlayer(name);
+			chat.partyPlayer(name);
 		});
 	});
 	Array.from(document.querySelectorAll('.js-unfriend-player')).forEach($button => {
