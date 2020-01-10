@@ -21,6 +21,9 @@ function initialize() {
 
 		// `contextmenu` Event listener running on document.body
 		onRightClick: [],
+
+		// `keyup` Event listener running on document.body
+		onKeyUp: [],
 	};
 
 	// Run all our mods
@@ -28,12 +31,14 @@ function initialize() {
 	const registerOnChatChange = callback => rerunning.onChatChange.push(callback);
 	const registerOnLeftClick = callback => rerunning.onLeftClick.push(callback);
 	const registerOnRightClick = callback => rerunning.onRightClick.push(callback);
+	const registerOnKeyUp = callback => rerunning.onKeyUp.push(callback);
 	mods.forEach(mod => {
 		mod.run({
 			registerOnDomChange,
 			registerOnChatChange,
 			registerOnLeftClick,
 			registerOnRightClick,
+			registerOnKeyUp,
 		});
 	});
 
@@ -74,6 +79,7 @@ function initialize() {
 		rerunning.onRightClick.forEach(callback =>
 			document.body.addEventListener('contextmenu', callback),
 		);
+		rerunning.onKeyUp.forEach(callback => document.body.addEventListener('keyup', callback));
 	}
 }
 
