@@ -17,6 +17,7 @@ import clanActivityTracker from './clanActivityTracker';
 import skillCooldownNumbers from './skillCooldownNumbers';
 import depositAll from './depositAll';
 import lockedItemSlots from './lockedItemSlots';
+import screenshotMode from './screenshotMode';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
@@ -39,4 +40,5 @@ export default [
 	skillCooldownNumbers,
 	depositAll,
 	lockedItemSlots,
+	screenshotMode,
 ];

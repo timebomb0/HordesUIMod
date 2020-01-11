@@ -1,0 +1,23 @@
+/* Screenshot Mod Warning CSS. Similar to the warning you get in chrome when entering full-screen since that's familiar and positioned to be below full-screen warning */
+.uimod-screenshot-warning {
+	margin: auto;
+	display: block;
+	text-align: center;
+	margin-top: 100px;
+	width: 250px;
+	padding: 13px;
+	color: #fff;
+	background: rgba(39, 41, 45, 0.74);
+}
+
+.uimod-screenshot-warning-container {
+	width: 100%;
+	position: absolute;
+}
+
+/* Applied to warning after a short delay to fadeout */
+.uimod-screenshot-warning-fadeout {
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s 1s, opacity 1s linear;
+}
