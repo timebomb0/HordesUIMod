@@ -1,6 +1,12 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 import * as helpers from './helpers';
-import { toggleXpMeterVisibility, createXpMeter, isWindowOpen, WindowNames } from '../../utils/ui';
+import {
+	toggleXpMeterVisibility,
+	createXpMeter,
+	isWindowOpen,
+	WindowNames,
+	createNavButton,
+} from '../../utils/ui';
 
 // TODO: Consider adding start button to start interval, and stop after X minutes of no EXP
 //       Or maybe watch XP bar and start it once XP bar first moves?
@@ -17,7 +23,7 @@ function xpMeter() {
 	}
 
 	// Wire up icon and xpmeter window
-	document.querySelector('.js-sysxp').addEventListener('click', toggleXpMeterVisibility);
+	createNavButton('xpmeter', 'XP', 'XP Meter', toggleXpMeterVisibility);
 	document
 		.querySelector('.js-xpmeter-close-icon')
 		.addEventListener('click', toggleXpMeterVisibility);

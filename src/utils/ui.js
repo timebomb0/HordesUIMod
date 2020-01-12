@@ -184,12 +184,6 @@ function createXpMeter() {
 	const $layoutContainer = document.querySelector(
 		'body > div.layout > div.container:nth-child(1)',
 	);
-	const $dpsMeterToggleElement = document.querySelector('#systrophy');
-	const $xpMeterToggleElement = makeElement({
-		element: 'div',
-		class: 'js-sysxp js-xpmeter-icon btn border black',
-		content: 'XP',
-	});
 
 	const xpMeterHTMLString = `
         <div class="l-corner-lr container uimod-xpmeter-1 js-xpmeter" style="display: none">
@@ -237,11 +231,6 @@ function createXpMeter() {
             </div>
         </div>
     `;
-
-	$dpsMeterToggleElement.parentNode.insertBefore(
-		$xpMeterToggleElement,
-		$dpsMeterToggleElement.nextSibling,
-	);
 
 	const $xpMeterElement = makeElement({
 		element: 'div',
@@ -297,6 +286,44 @@ function removeScreenshotWarning() {
 	$screenshotWarning.parentNode.removeChild($screenshotWarning);
 }
 
+function createNavButton(shortname, icon, tooltip, callback) {
+	const iconClass = 'js-' + shortname + '-icon';
+	const tooltipClass = 'js-' + shortname + '-tooltip';
+
+	// Create the icon
+	const $newIcon = makeElement({
+		element: 'div',
+		class: 'btn border black ' + iconClass,
+		content: icon,
+	});
+
+	// Add the icon to the right of Elixir icon
+	const $elixirIcon = document.querySelector('#sysgem');
+	$elixirIcon.parentNode.insertBefore($newIcon, $elixirIcon.nextSibling);
+
+	// Add tooltip onhover
+	$newIcon.addEventListener('mouseenter', () => {
+		const $newTooltip = makeElement({
+			element: 'div',
+			class: 'btn border grey ' + tooltipClass,
+			content: tooltip,
+		});
+
+		// Add the tooltip to the left of Elixir icon
+		$elixirIcon.parentNode.insertBefore($newTooltip, $elixirIcon);
+	});
+
+	// Remove tooltip after hover
+	$newIcon.addEventListener('mouseleave', () => {
+		const $newTooltip = document.querySelector('.' + tooltipClass);
+
+		$newTooltip.parentNode.removeChild($newTooltip);
+	});
+
+	// Call the appropriate function when clicked
+	document.querySelector('.' + iconClass).addEventListener('click', callback);
+}
+
 // state.openWindows should always only be managed by this file
 // Sometimes we want to track when a UI window we don't control is opened/closed
 // We use these methods to help facilitate that
@@ -336,4 +363,5 @@ export {
 	WindowNames,
 	createScreenshotWarning,
 	removeScreenshotWarning,
+	createNavButton,
 };
