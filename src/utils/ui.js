@@ -83,7 +83,7 @@ function createFriendsList() {
 			<div class="btn blue js-whisper-player" data-player-name="${friendName}">Whisper</div>
 			<div class="btn blue js-party-player" data-player-name="${friendName}">Party invite</div>
 			<div class="btn orange js-unfriend-player" data-player-name="${friendName}">X</div>
-			<input type="text" class="js-friend-note" data-player-name="${friendName}" value="${state
+			<input type="text" class="js-friend-note" placeholder="You can add a note here" data-player-name="${friendName}" value="${state
 				.friendNotes[friendName] || ''}"></input>
 		`;
 		});

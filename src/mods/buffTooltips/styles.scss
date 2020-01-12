@@ -1,0 +1,14 @@
+.uimod-skill-tooltip {
+	width: 260px;
+	position: fixed;
+	display: none;
+
+	.description {
+		/* Mirrors color of normal tooltip description */
+		color: rgb(91, 133, 142);
+	}
+
+	.uimod-skill-tooltip-text {
+		color: white;
+	}
+}
