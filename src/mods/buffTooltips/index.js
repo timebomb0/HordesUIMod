@@ -13,7 +13,7 @@ function createBuffTooltip() {
         </div>
     `;
 	const $buffTooltip = makeElement({
-		content: 'div',
+		element: 'div',
 		class: 'border blue slotdescription uimod-skill-tooltip js-skill-tooltip',
 		content: buffTooltipHTML,
 	});
