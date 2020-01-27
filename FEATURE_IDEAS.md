@@ -16,6 +16,7 @@
 ==Bugs==
 
 -   Occasionally buff tooltips aren't created when hovering over the target frame's tooltip. May only be the first time target frame is made visible, uncertain.
+-   Resized chat doesnt save width/height sometimes
 
 ==Technical improvements==
 

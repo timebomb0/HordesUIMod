@@ -65,23 +65,27 @@ async function itemStatsCopy(clickEvent) {
 	}
 
 	// We only want the lvl number, so pop off the level number from the "Requires Lv. 17" line
-	const itemLvl = $tooltip
-		.querySelector('.requirements')
-		.textContent.split(' ')
-		.pop();
+	// To find this line, we search through all the tooltip lines for the line containing "Requires"
+	const $lines = Array.from($tooltip.querySelectorAll('.container .pack'));
+	const $itemRequirement = $lines.filter($line => $line.textContent.includes('Requires '))[0];
+	const itemLvl = $itemRequirement.textContent.split(' ').pop();
 
 	// Grab the stats we care about, i.e. not part of the requirements or item type
 	const $stats = Array.from(
 		$tooltip.querySelectorAll(`
-				.container > .textpurp,
-				.container > .textblue,
-				.container > .textgreen:not(.slottitle):not(.requirements),
-				.container > .textwhite:not(.type)
+				.pack > .textpurp,
+				.pack > .textblue,
+				.pack > .textgreen:not(.slottitle),
+				.pack > .textwhite:not(.type)
 			`),
 	);
 
 	const statsText = $stats
 		.map($stat => {
+			// We only care about lines starting with a "+ ", showcasing that a piece of gear adds a certain stat
+			// The comparison line near the bottom of the tooltip also has a "+", but no space after it. This shows stat differentials vs current gear - we don't want that.
+			if ($stat.textContent.substr(0, 2) !== '+ ') return;
+
 			// Return quality percentage only if it exists, otherwise return normal stat
 			const $quality = $stat.querySelector('span');
 			if ($quality) {
@@ -95,6 +99,7 @@ async function itemStatsCopy(clickEvent) {
 				return $stat.textContent.trim();
 			}
 		})
+		.filter(statText => !!statText) // Filter out empty stat texts, i.e. if they didn't begin with a "+"
 		.join(', ');
 	navigator.clipboard.writeText(`${itemName} ${itemQuality} Lv.${itemLvl}: ${statsText}`);
 	chat.addChatMessage(`Copied ${itemName}'s stats to clipboard.`);
