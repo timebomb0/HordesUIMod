@@ -20,6 +20,7 @@ function skillCooldownNumbers() {
 		childList: true,
 		attributes: true,
 	});
+	addSkillCooldownNumbers();
 }
 
 export default {

@@ -14,11 +14,12 @@ function _handleCooldownUpdate(mutations) {
 	const tempState = getTempState();
 
 	mutations.forEach(mutation => {
-		if (!mutation.target.classList.contains('cd')) return;
-
 		const $cooldownOverlay = mutation.target;
+		const isValidCooldownOverlay = !$cooldownOverlay.classList.contains('offCd');
+		if (!isValidCooldownOverlay || typeof $cooldownOverlay.step !== 'number') return;
+
 		const skillId = $cooldownOverlay.parentNode.id;
-		const cooldownPercentageLeft = parseInt($cooldownOverlay.style.height);
+		const cooldownPercentageLeft = $cooldownOverlay.step; // `step` prop added by game, 100-0 for 100% CD left, 99% CD left, etc
 
 		let cdState = tempState.cooldownNums[skillId];
 
@@ -56,19 +57,23 @@ function _handleCooldownUpdate(mutations) {
 	});
 }
 
+// TODO: This isn't capturing the img inside of the overlay that appears on CD. Why not?
+// TODO: Look into seeing if we can identify the percentage based off the image (maybe just map the images to percentages...)
 function addSkillCooldownNumbers() {
 	const tempState = getTempState();
 
 	// Add/update cooldowns
-	const $skillCooldowns = Array.from(
-		document.querySelectorAll('#skillbar .cd:not(.js-cooldown-num-initd'),
+	const $skillCooldowns = document.querySelectorAll(
+		'#skillbar .overlay:not(.js-cooldown-num-initd):not(.offCd)',
 	);
 
-	$skillCooldowns.forEach($cooldownOverlay => {
-		$cooldownOverlay.classList.add('js-cooldown-num-initd');
+	if ($skillCooldowns.length === 0) return;
+
+	Array.from($skillCooldowns).forEach($skillOverlay => {
+		$skillOverlay.classList.add('js-cooldown-num-initd');
 
 		// Add cooldown element to overlay
-		$cooldownOverlay.appendChild(
+		$skillOverlay.appendChild(
 			makeElement({
 				element: 'div',
 				class: 'js-cooldown-num',
@@ -78,7 +83,7 @@ function addSkillCooldownNumbers() {
 		const cooldownObserver = new MutationObserver(_handleCooldownUpdate);
 
 		// Add cooldown number and mutator to state
-		const skillId = $cooldownOverlay.parentNode.id;
+		const skillId = $skillOverlay.parentNode.id;
 		tempState.cooldownNums[skillId] = {
 			initialCooldownTimestamp: null,
 			initialCooldownPcntLeft: null,
@@ -95,7 +100,11 @@ function addSkillCooldownNumbers() {
 		}
 		tempState.cooldownObservers[skillId] = cooldownObserver;
 
-		cooldownObserver.observe($cooldownOverlay, { attributes: true });
+		cooldownObserver.observe($skillOverlay, {
+			attributes: true,
+			childList: true,
+			subtree: true,
+		});
 	});
 }
 
