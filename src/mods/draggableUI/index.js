@@ -1,13 +1,14 @@
 import * as helpers from './helpers';
 import { getState, saveState } from '../../utils/state';
 
-// Drag all windows by their header
 function draggableUIWindows() {
+	// Drag all windows by their header
 	Array.from(document.querySelectorAll('.window:not(.js-can-move)')).forEach($window => {
 		$window.classList.add('js-can-move');
 		helpers.dragElement($window, $window.querySelector('.titleframe'));
 	});
 
+	// Drag all UI by clicking and holding
 	Array.from(
 		document.querySelectorAll(`
 		.partyframes:not(.js-can-move),
@@ -17,14 +18,14 @@ function draggableUIWindows() {
 	`),
 	).forEach($frame => {
 		$frame.classList.add('js-can-move');
-		helpers.dragElement($frame, null, 500);
+		helpers.dragElement($frame, null, 1000);
 	});
 }
 
-// Save dragged UI windows position to state
 function saveDraggedUIWindows() {
 	const state = getState();
 
+	// Save dragged UI windows position to state
 	Array.from(document.querySelectorAll('.window:not(.js-ui-is-saving)')).forEach($window => {
 		$window.classList.add('js-ui-is-saving');
 		const $draggableTarget = $window.querySelector('.titleframe');
@@ -35,6 +36,7 @@ function saveDraggedUIWindows() {
 		});
 	});
 
+	// Save dragged UI frame position to state
 	const saveFramePos = ($element, name) => {
 		if (!$element) return;
 
