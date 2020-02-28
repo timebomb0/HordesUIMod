@@ -15,7 +15,10 @@ function _handleCooldownUpdate(mutations) {
 
 	mutations.forEach(mutation => {
 		const $cooldownOverlay = mutation.target;
-		const isValidCooldownOverlay = !$cooldownOverlay.classList.contains('offCd');
+		const isValidCooldownOverlay =
+			$cooldownOverlay.parentElement && // This happens for some people for some unknown reason - maybe the overlay is removed from the DOM for some reason?
+			!$cooldownOverlay.classList.contains('offCd') &&
+			$cooldownOverlay.classList.contains('js-cooldown-num-initd');
 		if (!isValidCooldownOverlay || typeof $cooldownOverlay.step !== 'number') return;
 
 		const skillId = $cooldownOverlay.parentNode.id;
@@ -101,7 +104,7 @@ function addSkillCooldownNumbers() {
 		tempState.cooldownObservers[skillId] = cooldownObserver;
 
 		cooldownObserver.observe($skillOverlay, {
-			attributes: true,
+			attributeFilter: ['src'],
 			childList: true,
 			subtree: true,
 		});

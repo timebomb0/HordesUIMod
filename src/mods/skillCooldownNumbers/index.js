@@ -18,7 +18,6 @@ function skillCooldownNumbers() {
 	tempState.skillBarObserver.observe($skillBar, {
 		subtree: true,
 		childList: true,
-		attributes: true,
 	});
 	addSkillCooldownNumbers();
 }
