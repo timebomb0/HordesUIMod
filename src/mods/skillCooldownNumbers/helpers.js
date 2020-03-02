@@ -98,15 +98,12 @@ function addSkillCooldownNumbers() {
 		// Clear preexisting observer if it exists, then set new one to state
 		if (tempState.cooldownObservers[skillId]) {
 			tempState.cooldownObservers[skillId].disconnect();
-
 			delete tempState.cooldownObservers[skillId];
 		}
 		tempState.cooldownObservers[skillId] = cooldownObserver;
 
 		cooldownObserver.observe($skillOverlay, {
-			attributeFilter: ['src'],
 			childList: true,
-			subtree: true,
 		});
 	});
 }

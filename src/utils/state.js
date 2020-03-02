@@ -24,6 +24,7 @@ let state = {
 	},
 	clanLastActiveMembers: {},
 	lockedItemSlots: [],
+	disabledMods: [],
 };
 
 // tempState is saved only between page refreshes.

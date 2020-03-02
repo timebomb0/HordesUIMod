@@ -49,4 +49,5 @@ export default {
 	description:
 		'Identifies when you are pressing Ctrl/etc key modifiers, which is used by some other mods',
 	run: keyPressTracker,
+	required: true,
 };

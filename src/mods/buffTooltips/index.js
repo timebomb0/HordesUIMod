@@ -32,7 +32,6 @@ function buffTooltips() {
 
 	$buffArrays.forEach($buffArray => {
 		$buffArray.classList.add('js-buffarray-initd');
-
 		const buffArrayObserver = new MutationObserver(() => {
 			const $buffs = Array.from(
 				$buffArray.querySelectorAll('.slot:not(.js-buff-tooltip-initd)'),
@@ -48,7 +47,7 @@ function buffTooltips() {
 				$buff.addEventListener('mouseleave', removeBuffTooltip);
 			});
 		});
-		buffArrayObserver.observe($buffArray, { childList: true, attributes: false });
+		buffArrayObserver.observe($buffArray, { childList: true });
 	});
 }
 

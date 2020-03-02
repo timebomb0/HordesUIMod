@@ -49,7 +49,7 @@ function saveDraggedUIWindows() {
 	saveFramePos(document.querySelector('.partyframes:not(.js-ui-is-saving)'), 'partyFrame');
 	saveFramePos(document.querySelector('#ufplayer:not(.js-ui-is-saving)'), 'playerFrame');
 	saveFramePos(document.querySelector('#uftarget:not(.js-ui-is-saving)'), 'targetFrame');
-	saveFramePos(document.querySelector('#skillbar:not(.js-ui-is-saving)'), 'targetFrame');
+	saveFramePos(document.querySelector('#skillbar:not(.js-ui-is-saving)'), 'skillBar');
 }
 
 // Loads draggable UI windows position from state
@@ -78,7 +78,7 @@ function loadDraggedUIWindowsPositions() {
 	loadFramePos(document.querySelector('.partyframes:not(.js-has-loaded-pos)'), 'partyFrame');
 	loadFramePos(document.querySelector('#ufplayer:not(.js-has-loaded-pos)'), 'playerFrame');
 	loadFramePos(document.querySelector('#uftarget:not(.js-has-loaded-pos)'), 'targetFrame');
-	loadFramePos(document.querySelector('#skillbar:not(.js-has-loaded-pos)'), 'targetFrame');
+	loadFramePos(document.querySelector('#skillbar:not(.js-has-loaded-pos)'), 'skillBar');
 }
 
 export default {

@@ -1,4 +1,5 @@
 import mods from './mods';
+import { getState, loadState } from './utils/state';
 
 function initialize() {
 	// If the Hordes.io tab isn't active for long enough, it reloads the entire page, clearing this mod
@@ -9,6 +10,8 @@ function initialize() {
 	}
 	$layout.classList.add('uimod-initd');
 
+	loadState();
+	const state = getState();
 	const rerunning = {
 		// MutationObserver running whenever .layout changes
 		onDomChange: [],
@@ -28,13 +31,23 @@ function initialize() {
 	const registerOnChatChange = callback => rerunning.onChatChange.push(callback);
 	const registerOnLeftClick = callback => rerunning.onLeftClick.push(callback);
 	const registerOnRightClick = callback => rerunning.onRightClick.push(callback);
+
+	const disabledMods = state.disabledMods;
 	mods.forEach(mod => {
-		mod.run({
-			registerOnDomChange,
-			registerOnChatChange,
-			registerOnLeftClick,
-			registerOnRightClick,
-		});
+		if (disabledMods.includes(mod.name)) return;
+
+		try {
+			mod.run({
+				registerOnDomChange,
+				registerOnChatChange,
+				registerOnLeftClick,
+				registerOnRightClick,
+			});
+		} catch (modError) {
+			console.error(
+				`UI Mod Error: Problem running mod ${mod.name}, error: ${modError.toString()}`,
+			);
+		}
 	});
 
 	// Continuously re-run specific mods methods that need to be executed on UI change

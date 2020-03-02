@@ -1,5 +1,5 @@
 import modStart from './_modStart';
-import customSettings from './customSettings';
+import customSettings from './_customSettings';
 import chatContextMenu from './chatContextMenu';
 import chatFilters from './chatFilters';
 import chatTabs from './chatTabs';
