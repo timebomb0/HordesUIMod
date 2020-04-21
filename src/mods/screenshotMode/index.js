@@ -6,6 +6,6 @@ function screenshotMode() {
 
 export default {
 	name: 'Screenshot Mode',
-	description: 'Hookup F9 key to toggle game UI visibly for cleaner screenshots',
+	description: 'F9 key toggles game UI visibly for cleaner screenshots',
 	run: screenshotMode,
 };

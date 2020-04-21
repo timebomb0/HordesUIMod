@@ -55,7 +55,11 @@ function _wireLockSlot($lockedSlot) {
 			// Wire up "Unlock slot" menu item
 			const $unlockItemChoice = document.querySelector('.js-unlock-item');
 			$unlockItemChoice.addEventListener('click', () => {
-				state.lockedItemSlots.splice(state.lockedItemSlots.indexOf(slotNumber), 1);
+				state.lockedItemSlots.splice(
+					state.lockedItemSlots.indexOf(parseInt(slotNumber)),
+					1,
+				);
+				// console.info('unlocked locked item', slotNumber, state.lockedItemSlots);
 				saveState();
 
 				$lockedSlot.parentNode.removeChild($lockedSlot);
@@ -94,6 +98,7 @@ function initLockedSlots() {
 	$inventory.classList.add('js-locked-slots-initd');
 
 	// Initialize locked slots UI
+	// console.info('initting locked slots', state.lockedItemSlots);
 	state.lockedItemSlots.forEach(lockSlot);
 }
 

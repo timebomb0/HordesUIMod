@@ -1,6 +1,8 @@
 import { getState, saveState } from './state';
 import * as chat from './chat';
 import * as ui from './ui';
+import { removeFriendsList, createFriendsList } from '../mods/friendsList';
+import { createBlockList, removeBlockList } from '../mods/blockList';
 
 function friendPlayer(playerName) {
 	const state = getState();
@@ -15,8 +17,8 @@ function friendPlayer(playerName) {
 
 	// If UI is open remake it with new changes
 	if (ui.isWindowOpen(ui.WindowNames.friendsList)) {
-		ui.removeFriendsList();
-		ui.createFriendsList();
+		removeFriendsList();
+		createFriendsList();
 	}
 }
 
@@ -34,8 +36,8 @@ function unfriendPlayer(playerName) {
 
 	// If UI is open remake it with new changes
 	if (ui.isWindowOpen(ui.WindowNames.friendsList)) {
-		ui.removeFriendsList();
-		ui.createFriendsList();
+		removeFriendsList();
+		createFriendsList();
 	}
 }
 
@@ -54,8 +56,8 @@ function blockPlayer(playerName) {
 
 	// If UI is open remake it with new changes
 	if (ui.isWindowOpen(ui.WindowNames.blockList)) {
-		ui.removeBlockList();
-		ui.createBlockList();
+		removeBlockList();
+		createBlockList();
 	}
 }
 

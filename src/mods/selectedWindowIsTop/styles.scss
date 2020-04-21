@@ -1,11 +1,11 @@
-	/* Allows last clicked window to appear above all other windows */
-    .js-is-top {
-        z-index: 9998 !important;
-    }
-    .panel.context:not(.commandlist) {
-        z-index: 9999 !important;
-    }
-    /* The item icon being dragged in the inventory */
-    .container.svelte-120o2pb {
-        z-index: 9999 !important;
-    }
+/* Allows last clicked window to appear above all other windows */
+.js-is-top {
+	z-index: 9998 !important;
+}
+.panel.context:not(.commandlist) {
+	z-index: 9999 !important;
+}
+/* The item icon being dragged in the inventory */
+.container.svelte-snq3jh {
+	z-index: 9999 !important;
+}

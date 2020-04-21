@@ -19,6 +19,16 @@ function _handleCooldownUpdate(mutations) {
 			$cooldownOverlay.parentElement && // This happens for some people for some unknown reason - maybe the overlay is removed from the DOM for some reason?
 			!$cooldownOverlay.classList.contains('offCd') &&
 			$cooldownOverlay.classList.contains('js-cooldown-num-initd');
+
+		// TODO: Remove this once we figure out why cooldown doesnt show occasionally
+		if (!isValidCooldownOverlay || typeof $cooldownOverlay.step !== 'number') {
+			console.debug(
+				'cooldown not valid - overlay, parent',
+				$cooldownOverlay,
+				$cooldownOverlay.parentElement,
+			);
+		}
+
 		if (!isValidCooldownOverlay || typeof $cooldownOverlay.step !== 'number') return;
 
 		const skillId = $cooldownOverlay.parentNode.id;
@@ -51,9 +61,10 @@ function _handleCooldownUpdate(mutations) {
 		cdState.latestCooldownPcntLeft = cooldownPercentageLeft;
 		cdState.calculationCount++;
 
-		// Minimum number of numbers to figure out an accurate enough real cooldown number = 3
 		// Set the cooldown number in the UI
-		if (cdState.calculationCount > 2) {
+		// NOTE: Changed `calculationCount > 2` to `calculationCount % 3` to stabilize as they're displayed in UI
+		//       Credit for this idea: Luffa
+		if (cdState.calculationCount > 1 && cdState.calculationCount % 3) {
 			const $cooldownNum = $cooldownOverlay.querySelector('.js-cooldown-num');
 			$cooldownNum.innerText = _getCooldownText(cdState);
 		}

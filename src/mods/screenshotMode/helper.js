@@ -1,4 +1,4 @@
-import { createScreenshotWarning, removeScreenshotWarning } from '../../utils/ui';
+import { createScreenshotWarning, removeScreenshotWarning } from './screenshotWarningUi';
 
 function toggleScreenshotMode(keyEvent) {
 	// All of the UI elements we want to hide

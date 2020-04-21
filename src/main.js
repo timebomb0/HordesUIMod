@@ -34,7 +34,7 @@ function initialize() {
 
 	const disabledMods = state.disabledMods;
 	mods.forEach(mod => {
-		if (disabledMods.includes(mod.name)) return;
+		if (disabledMods.includes(mod.name) || mod.disabled) return;
 
 		try {
 			mod.run({
@@ -44,9 +44,7 @@ function initialize() {
 				registerOnRightClick,
 			});
 		} catch (modError) {
-			console.error(
-				`UI Mod Error: Problem running mod ${mod.name}, error: ${modError.toString()}`,
-			);
+			console.error(`UI Mod Error: Problem running mod ${mod.name}, error:`, modError);
 		}
 	});
 

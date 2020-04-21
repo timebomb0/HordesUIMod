@@ -1,8 +1,12 @@
 import * as chat from '../../utils/chat';
 import { VERSION } from '../../utils/version';
+import { testSaveState } from '../../utils/state';
 
 function modStart() {
 	chat.addChatMessage(`Hordes UI Mod v${VERSION} is now running.`);
+	setInterval(() => {
+		testSaveState();
+	}, 2000);
 }
 
 export default {

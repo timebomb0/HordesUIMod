@@ -1,4 +1,4 @@
-import { handleBuffTooltipDisplay, removeBuffTooltip } from './helpers';
+import { handleBuffArrayChange } from './helpers';
 import { makeElement } from '../../utils/misc';
 
 function createBuffTooltip() {
@@ -18,10 +18,6 @@ function createBuffTooltip() {
 		content: buffTooltipHTML,
 	});
 	document.querySelector('.layout').appendChild($buffTooltip);
-
-	// Hide the buff tooltip if we mouse over something that isn't the buff icon
-	// Helps handle edge cases where the buff tooltip doesn't hide when it should
-	document.body.addEventListener('mousemove', handleBuffTooltipDisplay);
 }
 
 // Add observers to every buff array, so we can track skills and add buff tooltip handlers when they appear
@@ -32,21 +28,8 @@ function buffTooltips() {
 
 	$buffArrays.forEach($buffArray => {
 		$buffArray.classList.add('js-buffarray-initd');
-		const buffArrayObserver = new MutationObserver(() => {
-			const $buffs = Array.from(
-				$buffArray.querySelectorAll('.slot:not(.js-buff-tooltip-initd)'),
-			);
-
-			$buffs.forEach($buff => {
-				$buff.classList.add('js-buff-tooltip-initd');
-				// Handle deleting tooltip either on mouseleave or on mousemove outside of the .buffarray
-				// Being this comprehensive helps ensure the tooltip doesn't accidentally stay visible inappropriately
-				$buff.parentNode.addEventListener('mousemove', event =>
-					handleBuffTooltipDisplay(event, $buff),
-				);
-				$buff.addEventListener('mouseleave', removeBuffTooltip);
-			});
-		});
+		handleBuffArrayChange($buffArray);
+		const buffArrayObserver = new MutationObserver(() => handleBuffArrayChange($buffArray));
 		buffArrayObserver.observe($buffArray, { childList: true });
 	});
 }

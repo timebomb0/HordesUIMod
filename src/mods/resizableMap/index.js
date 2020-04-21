@@ -1,4 +1,4 @@
-import { getState, getTempState } from '../../utils/state';
+import { getState, saveState, getTempState } from '../../utils/state';
 import * as helpers from './helpers';
 import { debounce } from '../../utils/misc';
 
@@ -43,8 +43,43 @@ function resizableMap() {
 	resizeObserverCanvas.observe($canvas);
 }
 
+function zoomMap() {
+	const state = getState();
+
+	// Wire up zooming
+	const $map = document.querySelector('.container canvas:not(.js-map-zoom)');
+	if (!$map) return;
+	$map.classList.add('js-map-zoom');
+
+	// On mouse wheel, zoom in/out 10%
+	$map.addEventListener('wheel', event => {
+		if (event.deltaY < 0) {
+			// Zoom in on mouse scroll up
+			if (state.mapZoomScaleFactor >= 3) return;
+
+			// This is a neat problem - in JS, 0.7+0.1 is not 0.8, it's 0.7999999999999999 due to floating point issues- we round here to bypass that
+			state.mapZoomScaleFactor = Math.round((state.mapZoomScaleFactor + 0.1) * 10) / 10;
+			saveState();
+			helpers.zoomAndCenterMap();
+		} else {
+			// Zoom out on mouse scroll down
+			if (state.mapZoomScaleFactor <= 0.3) return;
+			state.mapZoomScaleFactor = Math.round((state.mapZoomScaleFactor - 0.1) * 10) / 10;
+			saveState();
+			helpers.zoomAndCenterMap();
+		}
+	});
+
+	// Initialize current zoom if user has zoomed
+	helpers.zoomAndCenterMap();
+}
+
 export default {
-	name: 'Resizable map',
-	description: 'Allows you to resize the map by clicking and dragging from the bottom left',
-	run: resizableMap,
+	name: 'Resizable, zoomable map',
+	description:
+		'Allows you to resize the map by clicking and dragging from the bottom left. Also allows you to zoom the map with your mousewheel.',
+	run: () => {
+		resizableMap();
+		zoomMap();
+	},
 };

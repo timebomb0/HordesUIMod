@@ -55,8 +55,10 @@ function mapControls() {
 
 	$resetBtn.addEventListener('click', () => {
 		state.mapOpacity = 70;
-		state.mapWidth = '174px';
-		state.mapHeight = '174px';
+		state.mapWidth = '194px';
+		state.mapHeight = '194px';
+		helpers.resetMapZoomScale();
+		state.mapZoomScaleFactor = 1;
 		saveState();
 		helpers.updateMapOpacity();
 		$mapContainer.style.width = state.mapWidth;

@@ -1,17 +1,17 @@
-import { getState } from '../../utils/state';
-
 // Makes chat context menu visible and appear under the mouse
-function showChatContextMenu(name, mousePos) {
-	const state = getState();
-
-	// Right before we show the context menu, we want to handle showing/hiding Friend/Unfriend
+function showChatContextMenu(name, mousePos, registeredMenuItems) {
+	// Right before we show the context menu, we want to check if we should hide/unhide any of the menu items
 	const $contextMenu = document.querySelector('.js-chat-context-menu');
-	$contextMenu
-		.querySelector('[name="friend"]')
-		.classList.toggle('js-hidden', !!state.friendsList[name]);
-	$contextMenu
-		.querySelector('[name="unfriend"]')
-		.classList.toggle('js-hidden', !state.friendsList[name]);
+	const $menuItems = Array.from($contextMenu.querySelectorAll('[name]'));
+	$menuItems.forEach($menuItem => {
+		const id = $menuItem.getAttribute('name');
+		const handleVisibilityCheck =
+			registeredMenuItems[id] && registeredMenuItems[id].handleVisibilityCheck;
+		if (handleVisibilityCheck) {
+			const isVisible = handleVisibilityCheck();
+			$menuItem.classList.toggle('js-hidden', !isVisible);
+		}
+	});
 
 	$contextMenu.querySelector('.js-name').textContent = name;
 	$contextMenu.setAttribute(

@@ -1,12 +1,7 @@
 import { getState, getTempState, saveState } from '../../utils/state';
 import * as helpers from './helpers';
-import {
-	toggleXpMeterVisibility,
-	createXpMeter,
-	isWindowOpen,
-	WindowNames,
-	createNavButton,
-} from '../../utils/ui';
+import { isWindowOpen, WindowNames, createNavButton } from '../../utils/ui';
+import { toggleXpMeterVisibility, createXpMeter } from './xpMeterUi';
 
 // TODO: Consider adding start button to start interval, and stop after X minutes of no EXP
 //       Or maybe watch XP bar and start it once XP bar first moves?
@@ -14,6 +9,8 @@ import {
 function xpMeter() {
 	const state = getState();
 	const tempState = getTempState();
+
+	WindowNames.xpMeter = 'xp-meter';
 
 	createXpMeter();
 

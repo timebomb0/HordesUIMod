@@ -108,7 +108,7 @@ async function itemStatsCopy(clickEvent) {
 export default {
 	name: 'Items stats copy',
 	description:
-		'When ctrl+left clicking a piece of equipment in your inventory, its stats will be copied to your clipboard',
+		'When alt+left clicking a piece of equipment in your inventory, its stats will be copied to your clipboard',
 	run: ({ registerOnRightClick }) => {
 		registerOnRightClick(itemStatsCopy);
 	},

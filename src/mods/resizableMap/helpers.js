@@ -1,4 +1,5 @@
 import { getState, getTempState, saveState } from '../../utils/state';
+import { debounce } from '../../utils/misc';
 
 // When the map container resizes, we want to update the canvas width/height and the state
 function mapResizeHandler() {
@@ -39,12 +40,18 @@ function mapResizeHandler() {
 		state.mapWidth = mapWidthStr;
 		state.mapHeight = mapHeightStr;
 		saveState();
+
+		// If map has been resized, zoom will be reset - so we initialize it again
+		debouncedZoomAndCenterMap();
 	} else {
 		const isMaximized =
 			mapWidth > tempState.lastMapWidth && mapHeight > tempState.lastMapHeight;
 		if (!isMaximized) {
 			$map.style.width = state.mapWidth;
 			$map.style.height = state.mapHeight;
+
+			// Also update the zoom scale if map was maximized then minimized
+			debouncedZoomAndCenterMap();
 		}
 	}
 
@@ -85,4 +92,50 @@ function triggerMapResize() {
 	}
 }
 
-export { mapResizeHandler, triggerMapResize };
+// Scales map by specific zoom amount
+// This is multiplicative on the current scale, i.e. zoom once for 110%, then zoom a second time for 110%*110% = 1.1*1.1 = 121%
+function handleMapZoom(scaleAmount) {
+	const $map = document.querySelector('.js-map-zoom');
+	if (!$map) return; // This generally shouldn't get hit, except maybe when the map resize handler is hit on initialization
+
+	$map.getContext('2d').scale(scaleAmount, scaleAmount);
+}
+
+// Resets then initializes map zoom from state, and recenters map if it's resized
+function zoomAndCenterMap() {
+	const { mapZoomScaleFactor } = getState();
+
+	const $map = document.querySelector('.container canvas');
+	if (!$map) return;
+
+	// Reset map zoom first, in case it was already set
+	$map.getContext('2d').resetTransform();
+
+	handleMapZoom(mapZoomScaleFactor);
+
+	recenterMap();
+}
+
+// Recenters canvas so player is in the middle of the map
+function recenterMap() {
+	const state = getState();
+
+	const $map = document.querySelector('.container canvas');
+	if (!$map) return;
+
+	// Default Hordes minimap canvas size is 194x194
+	const defaultMapSize = 194;
+
+	const mapWidth = parseInt(state.mapWidth);
+	const mapHeight = parseInt(state.mapHeight);
+
+	// If map is zoomed, we need to recenter by keeping the scaled map width/height in mind
+	const widthDifferential = (mapWidth / state.mapZoomScaleFactor - defaultMapSize) / 2;
+	const heightDifferential = (mapHeight / state.mapZoomScaleFactor - defaultMapSize) / 2;
+
+	$map.getContext('2d').translate(widthDifferential, heightDifferential);
+}
+
+const debouncedZoomAndCenterMap = debounce(zoomAndCenterMap, 20);
+
+export { mapResizeHandler, triggerMapResize, zoomAndCenterMap };

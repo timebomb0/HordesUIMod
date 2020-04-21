@@ -47,8 +47,17 @@ function addLockItemContextMenu() {
 				$contextMenu.offsetLeft,
 				$contextMenu.offsetTop - 10,
 			);
+
 			// Parent of overlay is the bag slot. Get its id (e.g. "bag4"), then get the slot number from the id
-			const bagSlotNum = parseInt($bagSlotOverlay.parentNode.id.substr(3));
+			// Occasionally $bagSlotOverlay is actually the bag slot itself, not the overlay - if the user has clicked near the edge of the bag
+			// In this case, don't use the parentElement
+			const bagSlotNum = parseInt(
+				$bagSlotOverlay.id
+					? $bagSlotOverlay.id.substr(3)
+					: $bagSlotOverlay.parentElement.id.substr(3),
+			);
+
+			// console.info('bagslotnum lock item', bagSlotNum, $bagSlotOverlay);
 
 			state.lockedItemSlots.push(bagSlotNum);
 			saveState();
@@ -83,6 +92,7 @@ function cleanLockedItemState() {
 	// If something really went wrong and lockedItemSlots isn't an array, set it to an empty array
 	if (!Array.isArray(state.lockedItemSlots)) {
 		state.lockedItemSlots = [];
+		// console.info('cleared lockedItemSlots');
 		saveState();
 		return;
 	}

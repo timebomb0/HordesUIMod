@@ -14,7 +14,7 @@ const OUTPUT_DIR = `${process.cwd()}${sep}build`;
 const OUTPUT_FILE = `${OUTPUT_DIR}${sep}userscript.js`;
 // Fun fact: We are NOT ALLOWED TO OBFUSCATE/MINIFY our userscript on greasyfork.org
 
-console.log('Building userscript...');
+console.log(`[${new Date().toLocaleString()}] Building userscript...`);
 
 const folders = fs
 	.readdirSync(MODS_FOLDER)

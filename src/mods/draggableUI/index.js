@@ -2,54 +2,64 @@ import * as helpers from './helpers';
 import { getState, saveState } from '../../utils/state';
 
 function draggableUIWindows() {
-	// Drag all windows by their header
-	Array.from(document.querySelectorAll('.window:not(.js-can-move)')).forEach($window => {
-		$window.classList.add('js-can-move');
-		helpers.dragElement($window, $window.querySelector('.titleframe'));
-	});
+	const state = getState();
 
-	// Drag all UI by clicking and holding
-	Array.from(
-		document.querySelectorAll(`
+	// Drag all windows by their header
+	if (state.enableWindowDragging) {
+		Array.from(document.querySelectorAll('.window:not(.js-can-move)')).forEach($window => {
+			$window.classList.add('js-can-move');
+			helpers.dragElement($window, $window.querySelector('.titleframe'));
+		});
+	}
+
+	if (state.enableFrameDragging) {
+		// Drag all UI by clicking and holding
+		Array.from(
+			document.querySelectorAll(`
 		.partyframes:not(.js-can-move),
 		#ufplayer:not(.js-can-move),
 		#uftarget:not(.js-can-move),
 		#skillbar:not(.js-can-move)
 	`),
-	).forEach($frame => {
-		$frame.classList.add('js-can-move');
-		helpers.dragElement($frame, null, 1000);
-	});
+		).forEach($frame => {
+			$frame.classList.add('js-can-move');
+			helpers.dragElement($frame, null, 1000);
+		});
+	}
 }
 
 function saveDraggedUIWindows() {
 	const state = getState();
 
-	// Save dragged UI windows position to state
-	Array.from(document.querySelectorAll('.window:not(.js-ui-is-saving)')).forEach($window => {
-		$window.classList.add('js-ui-is-saving');
-		const $draggableTarget = $window.querySelector('.titleframe');
-		const windowName = $draggableTarget.querySelector('[name="title"]').textContent;
-		$draggableTarget.addEventListener('mouseup', () => {
-			state.windowsPos[windowName] = $window.getAttribute('style');
-			saveState();
+	if (state.enableWindowDragging) {
+		// Save dragged UI windows position to state
+		Array.from(document.querySelectorAll('.window:not(.js-ui-is-saving)')).forEach($window => {
+			$window.classList.add('js-ui-is-saving');
+			const $draggableTarget = $window.querySelector('.titleframe');
+			const windowName = $draggableTarget.querySelector('[name="title"]').textContent;
+			$draggableTarget.addEventListener('mouseup', () => {
+				state.windowsPos[windowName] = $window.getAttribute('style');
+				saveState();
+			});
 		});
-	});
+	}
 
-	// Save dragged UI frame position to state
-	const saveFramePos = ($element, name) => {
-		if (!$element) return;
+	if (state.enableFrameDragging) {
+		// Save dragged UI frame position to state
+		const saveFramePos = ($element, name) => {
+			if (!$element) return;
 
-		$element.classList.add('js-ui-is-saving');
-		$element.addEventListener('mouseup', () => {
-			state.windowsPos[name] = $element.getAttribute('style');
-		});
-	};
+			$element.classList.add('js-ui-is-saving');
+			$element.addEventListener('mouseup', () => {
+				state.windowsPos[name] = $element.getAttribute('style');
+			});
+		};
 
-	saveFramePos(document.querySelector('.partyframes:not(.js-ui-is-saving)'), 'partyFrame');
-	saveFramePos(document.querySelector('#ufplayer:not(.js-ui-is-saving)'), 'playerFrame');
-	saveFramePos(document.querySelector('#uftarget:not(.js-ui-is-saving)'), 'targetFrame');
-	saveFramePos(document.querySelector('#skillbar:not(.js-ui-is-saving)'), 'skillBar');
+		saveFramePos(document.querySelector('.partyframes:not(.js-ui-is-saving)'), 'partyFrame');
+		saveFramePos(document.querySelector('#ufplayer:not(.js-ui-is-saving)'), 'playerFrame');
+		saveFramePos(document.querySelector('#uftarget:not(.js-ui-is-saving)'), 'targetFrame');
+		saveFramePos(document.querySelector('#skillbar:not(.js-ui-is-saving)'), 'skillBar');
+	}
 }
 
 // Loads draggable UI windows position from state

@@ -19,17 +19,23 @@ import depositAll from './depositAll';
 import lockedItemSlots from './lockedItemSlots';
 import screenshotMode from './screenshotMode';
 import buffTooltips from './buffTooltips';
+import healthColorChanger from './healthColorChanger';
+import blockList from './blockList';
 
 // The array here dictates the order of which mods are executed, from top to bottom
 export default [
+	// MUST BE AT THE TOP:
 	modStart,
 	keyPressTracker,
+
+	// Order for these items only matter in regards to registering items in settings/chat menu:
+	friendsList,
+	blockList,
+
+	// Order for these items shouldn't matter:
 	resizableMap,
 	mapControls,
-	friendsList,
-	customSettings,
 	resizableChat,
-	chatContextMenu,
 	chatFilters,
 	chatTabs,
 	draggableUI,
@@ -43,4 +49,9 @@ export default [
 	lockedItemSlots,
 	screenshotMode,
 	buffTooltips,
+	healthColorChanger,
+
+	// MUST BE AT THE BOTTOM:
+	customSettings,
+	chatContextMenu,
 ];

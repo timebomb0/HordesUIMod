@@ -2,7 +2,8 @@ import { getTempState } from '../../utils/state';
 import { makeElement } from '../../utils/misc';
 import * as helpers from './helpers';
 import * as chat from '../../utils/chat';
-import * as player from '../../utils/player';
+
+const registeredMenuItems = {};
 
 // This creates the initial chat context menu DOM (which starts as hidden)
 function createChatContextMenu() {
@@ -16,11 +17,11 @@ function createChatContextMenu() {
         <div class="js-name">...</div>
         <div class="choice" name="party">Party invite</div>
         <div class="choice" name="whisper">Whisper</div>
-        <div class="choice" name="friend">Friend</div>
-		<div class="choice" name="unfriend">Unfriend</div>
 		<div class="choice" name="copy">Copy name</div>
-        <div class="choice" name="block">Block</div>
-    `;
+	`;
+	Object.values(registeredMenuItems).forEach(({ id, label }) => {
+		contextMenuHTML += `<div class="choice" name="${id}">${label}</div>`;
+	});
 	document.body.appendChild(
 		makeElement({
 			element: 'div',
@@ -36,17 +37,11 @@ function createChatContextMenu() {
 	$chatContextMenu.querySelector('[name="whisper"]').addEventListener('click', () => {
 		chat.whisperPlayer(tempState.chatName);
 	});
-	$chatContextMenu.querySelector('[name="friend"]').addEventListener('click', () => {
-		player.friendPlayer(tempState.chatName);
-	});
-	$chatContextMenu.querySelector('[name="unfriend"]').addEventListener('click', () => {
-		player.unfriendPlayer(tempState.chatName);
-	});
 	$chatContextMenu.querySelector('[name="copy"]').addEventListener('click', () => {
 		navigator.clipboard.writeText(tempState.chatName);
 	});
-	$chatContextMenu.querySelector('[name="block"]').addEventListener('click', () => {
-		player.blockPlayer(tempState.chatName);
+	Object.values(registeredMenuItems).forEach(({ id, handleClick }) => {
+		$chatContextMenu.querySelector(`[name="${id}"]`).addEventListener('click', handleClick);
 	});
 }
 
@@ -62,19 +57,27 @@ function chatContextMenu() {
 		const showContextMenu = clickEvent => {
 			// TODO: Is there a way to pass the name to showChatContextMenumethod, instead of storing in tempState?
 			tempState.chatName = name;
-			helpers.showChatContextMenu(name, {
-				x: clickEvent.pageX,
-				y: clickEvent.pageY,
-			});
+			helpers.showChatContextMenu(
+				name,
+				{
+					x: clickEvent.pageX,
+					y: clickEvent.pageY,
+				},
+				registeredMenuItems,
+			);
 		};
 		$name.addEventListener('click', showContextMenu); // Left click
 		$name.addEventListener('contextmenu', showContextMenu); // Right click works too
 	};
+
+	// Wire up most chat messages
 	Array.from(document.querySelectorAll('#chat .name:not(.js-is-context-menu-initd)')).forEach(
 		$name => {
 			addContextMenu($name, $name.textContent);
 		},
 	);
+
+	// Wire up messages coming from whispers
 	// `textf0` is the VG faction, `textf1` is the BL faction - we want to support both with our whisper context menu
 	Array.from(
 		document.querySelectorAll(
@@ -105,10 +108,20 @@ function closeChatContextMenu(clickEvent) {
 	$contextMenu.style.display = 'none';
 }
 
+// `id` is unique to this chat context item, e.g. "friend"
+// `label` is the text in the visible context menu
+// `handleClick` is a callback triggered when the user clicks on the menu item
+// `handleVisiblityCheck` is an optional callback triggered when the menu is rendered.
+//		Return `true` and the menu item will be visible, return `false` and it will be hidden
+//		If this argument is not provided, the menu item will always be visible.
+function registerChatMenuItem({ id, label, handleClick, handleVisibilityCheck }) {
+	registeredMenuItems[id] = { id, label, handleClick, handleVisibilityCheck };
+}
+
 export default {
 	name: 'Chat Context Menu',
 	description:
-		'Displays a menu when you click on a player, allowing you to whisper/party/friend/block them',
+		'Displays a menu when you click on a player, allowing you to whisper/party them. Also allows chat menu to be used by other mods, e.g. friends list, block list.',
 	run: ({ registerOnLeftClick, registerOnChatChange }) => {
 		createChatContextMenu();
 		chatContextMenu();
@@ -120,3 +133,5 @@ export default {
 		registerOnChatChange(chatContextMenu);
 	},
 };
+
+export { registerChatMenuItem };

@@ -1,12 +1,7 @@
 import { getWindow } from '../../utils/game';
 import { WindowNames } from '../../utils/ui';
 
-function deposit() {
-	const $stash = getWindow(WindowNames.stash);
-
-	// Select normal deposit button
-	$stash.querySelector('.slot .grey.gold:not(.js-deposit-all)').dispatchEvent(new Event('click'));
-
+function _executeStashAction($stash) {
 	const $currencyInput = $stash.querySelector('input.formatted');
 
 	// Input some huge value they'll have less than
@@ -14,9 +9,9 @@ function deposit() {
 	$currencyInput.dispatchEvent(new Event('input'));
 
 	setTimeout(function() {
-		const $depositButton = $stash.querySelector('.btn.blue');
-		if (!$depositButton.classList.contains('disabled')) {
-			$depositButton.dispatchEvent(new Event('click'));
+		const $actionButton = $stash.querySelector('.marg-top .btn');
+		if (!$actionButton.classList.contains('disabled')) {
+			$actionButton.dispatchEvent(new Event('click'));
 		}
 
 		// Clear input
@@ -25,4 +20,24 @@ function deposit() {
 	}, 0);
 }
 
-export { deposit };
+function deposit() {
+	const $stash = getWindow(WindowNames.stash);
+
+	// Select normal deposit button
+	$stash.querySelector('.slot .grey.gold:not(.js-deposit-all)').dispatchEvent(new Event('click'));
+
+	_executeStashAction($stash);
+}
+
+function withdraw() {
+	const $stash = getWindow(WindowNames.stash);
+
+	// Select normal deposit button
+	const $stashBtns = $stash.querySelectorAll('.slot .grey.gold:not(.js-withdraw-all');
+	const $withdrawBtn = $stashBtns[$stashBtns.length - 1]; // Right most button
+	$withdrawBtn.dispatchEvent(new Event('click'));
+
+	_executeStashAction($stash);
+}
+
+export { deposit, withdraw };

@@ -43,4 +43,15 @@ function updateMapOpacity() {
 	}
 }
 
-export { updateMapOpacity };
+function resetMapZoomScale() {
+	const state = getState();
+
+	const $map = document.querySelector('.js-map-zoom');
+	if (!$map) return; // If this class doesn't exist, then the map zoom mod isn't enabled
+
+	if (state.mapZoom === 1) return;
+
+	$map.getContext('2d').resetTransform();
+}
+
+export { updateMapOpacity, resetMapZoomScale };

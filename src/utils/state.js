@@ -21,10 +21,17 @@ let state = {
 		blockList: false,
 		xpMeter: false,
 		merchant: false,
+		modToggler: false,
+		uiModOptions: false,
 	},
 	clanLastActiveMembers: {},
 	lockedItemSlots: [],
 	disabledMods: [],
+	enableWindowDragging: true,
+	enableFrameDragging: true,
+	healthBarFadeColor: 'orange', // 'orange' or 'red'
+	healthBarFadePercentage: 100, // 100 or 50
+	mapZoomScaleFactor: 1.0,
 };
 
 // tempState is saved only between page refreshes.
@@ -52,6 +59,10 @@ function getTempState() {
 }
 
 function saveState() {
+	// localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(state));
+}
+
+function testSaveState() {
 	localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(state));
 }
 
@@ -69,4 +80,4 @@ function loadState() {
 	}
 }
 
-export { getState, getTempState, saveState, loadState };
+export { getState, getTempState, saveState, loadState, testSaveState };
