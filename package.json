@@ -45,7 +45,7 @@
 		"browserify": "^16.5.0",
 		"clean-css": "^4.2.1",
 		"esmify": "^2.1.1",
-		"node-sass": "^4.13.0",
+		"node-sass": "^7.0.0",
 		"stream-to-string": "^1.2.0",
 		"uglifyify": "^5.0.2"
 	},
